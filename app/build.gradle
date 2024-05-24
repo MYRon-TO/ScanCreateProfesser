@@ -37,4 +37,19 @@ dependencies {
     testImplementation libs.junit
     androidTestImplementation libs.ext.junit
     androidTestImplementation libs.espresso.core
+
+    // Room database
+    def room_version = "2.6.1"
+
+    implementation libs.room.runtime
+    implementation "androidx.room:room-runtime:$room_version"
+    annotationProcessor "androidx.room:room-compiler:$room_version"
+    implementation "androidx.room:room-guava:$room_version"
+
+    //  async task
+    implementation("com.google.guava:guava:33.2.0-android")
+
+    // document scanner
+    implementation 'com.google.android.gms:play-services-mlkit-document-scanner:16.0.0-beta1'
+
 }
