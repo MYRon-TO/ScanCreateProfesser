@@ -16,23 +16,26 @@ import java.time.OffsetDateTime;
 @TypeConverters(Converters.class)
 public class DataEntityNote {
 
-    @PrimaryKey(autoGenerate = true)
-    private Integer id;
+//    @PrimaryKey(autoGenerate = true)
+//    private Integer id;
 
+    @PrimaryKey
     @ColumnInfo(name = "note_file_uri")
     @NonNull
     private Uri noteFile;
 
-    @ColumnInfo(name = "title")
-    private String title;
+//    @ColumnInfo(name = "title")
+//    private String title;
 
-    @ColumnInfo(name = "change_at")
-    private OffsetDateTime changeAt;
+//    @ColumnInfo(name = "change_at")
+//    private OffsetDateTime changeAt;
 
-    public DataEntityNote(@NonNull Uri noteFile, String title, OffsetDateTime changeAt) {
+//    public DataEntityNote(@NonNull Uri noteFile, String title, OffsetDateTime changeAt) {
+//    public DataEntityNote(@NonNull Uri noteFile, String title) {
+    public DataEntityNote(@NonNull Uri noteFile) {
         this.noteFile = noteFile;
-        this.title = title;
-        this.changeAt = changeAt;
+//        this.title = title;
+//        this.changeAt = changeAt;
     }
 
     @NonNull
@@ -40,33 +43,33 @@ public class DataEntityNote {
         return noteFile;
     }
 
-    public String getTitle() {
-        return title;
-    }
+//    public String getTitle() {
+//        return title;
+//    }
 
-    public OffsetDateTime getChangeAt() {
-        return changeAt;
-    }
+//    public OffsetDateTime getChangeAt() {
+//        return changeAt;
+//    }
 
     public void setNoteFile(@NonNull Uri noteFile) {
         this.noteFile = noteFile;
     }
 
-    public void setTitle(String title) {
-        this.title = title;
-    }
+//    public void setTitle(String title) {
+//        this.title = title;
+//    }
 
-    public void setChangeAt(OffsetDateTime changeAt) {
-        this.changeAt = changeAt;
-    }
+//    public void setChangeAt(OffsetDateTime changeAt) {
+//        this.changeAt = changeAt;
+//    }
 
-    public Integer getId() {
-        return id;
-    }
+//    public Integer getId() {
+//        return id;
+//    }
 
-    public void setId(Integer id) {
-        this.id = id;
-    }
+//    public void setId(Integer id) {
+//        this.id = id;
+//    }
 }
 
 

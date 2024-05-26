@@ -2,6 +2,8 @@ package model.preference;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.net.Uri;
+import android.provider.DocumentsContract;
 
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -48,12 +50,11 @@ public class PreferenceManager {
 
     /**
      * @see PreferenceManager#getInstance(Context context)
-     * @param context
+     * @param context The context of the application.
      */
     private PreferenceManager(Context context) {
         sharedPreferences = context.getSharedPreferences(SHARED_PREFERENCE_NAME, Context.MODE_PRIVATE);
     }
-
 
     // * The Example of the usage of the shared preference.
     public void setConfig_UnitTest(String key, String value) {
@@ -79,6 +80,7 @@ public class PreferenceManager {
 
     /**
      * get the preference of the dark mode.
+     * <strong> remember to check the null safe </strong>
      * @return the preference of the dark mode, <strong>true</strong> if the dark mode is enabled, <strong>false</strong> otherwise.
      */
     public boolean getPreferenceIsDarkMode() {
@@ -92,6 +94,7 @@ public class PreferenceManager {
 
     /**
      * set the preference of the dark mode.
+     * <strong> remember to check the null safe </strong>
      * @param isDarkMode the preference of the dark mode, <strong>true</strong> to set the dark mode, <strong>false</strong> otherwise.
      * @return <strong>true</strong> if the preference is set successfully, <strong>false</strong> otherwise.
      */
@@ -106,4 +109,54 @@ public class PreferenceManager {
         }
     }
 
+
+    /**
+     * set the preference of the path to save the note.
+     * <strong> remember to check the null safe </strong>
+     * @return the preference of the path to save the note.
+     */
+    public Uri getPreferencePathToSaveNote(){
+        lock.readLock().lock();
+        try {
+            String path = sharedPreferences.getString("pathToSaveNote", null);
+            return path == null ? DocumentsContract.buildRootsUri("com.android.externalstorage.documents") : Uri.parse(path);
+        } finally {
+            lock.readLock().unlock();
+        }
+    }
+
+    /**
+     * set the preference of the path to save the note.
+     * <strong> remember to check the null safe </strong>
+     * @param path the path to save the note.
+     * @return <strong>true</strong> if the preference is set successfully, <strong>false</strong> otherwise.
+     */
+    public boolean setPreferencePathToSaveNote(Uri path) {
+        lock.writeLock().lock();
+        try {
+            return sharedPreferences.edit().putString("pathToSaveNote", path.toString()).commit();
+        } catch (Exception e) {
+            return false;
+        } finally {
+            lock.writeLock().unlock();
+        }
+    }
+
+    public boolean getPreferenceIsFirstTime() {
+        lock.readLock().lock();
+        try {
+            return sharedPreferences.getBoolean("isFirstTime", true);
+        } finally {
+            lock.readLock().unlock();
+        }
+    }
+
+    public void setPreferenceIsFirstTime(boolean isFirstTime) {
+        lock.writeLock().lock();
+        try {
+            sharedPreferences.edit().putBoolean("isFirstTime", isFirstTime).apply();
+        } finally {
+            lock.writeLock().unlock();
+        }
+    }
 }
