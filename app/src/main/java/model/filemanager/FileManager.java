@@ -1,22 +1,16 @@
 package model.filemanager;
 
-import static android.content.ContentValues.TAG;
-
-import android.content.ContentResolver;
 import android.content.Context;
 import android.net.Uri;
-import android.util.Log;
 
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.MoreExecutors;
 
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.util.concurrent.Callable;
 
@@ -37,21 +31,21 @@ public class FileManager {
 
     /**
      * Write content to a file.
-     *
-     * @param uri     The uri of the file.
+     * @param uri The uri of the file.
      * @param content The content to write.
-     * @return True if the content was written successfully, false otherwise.
+     * @param context The context of the application.
+     * @return A future that resolves to true if the write was successful, false otherwise.
      * @throws IOException If an I/O error occurs.
      */
-    public static ListenableFuture<Boolean> write(Uri uri, String content) throws IOException {
+    public static ListenableFuture<Boolean> write(Uri uri, String content, Context context) throws IOException {
         Callable<Boolean> task = () -> {
-            File file = new File(uri.getPath());
-            try (BufferedWriter bw = new BufferedWriter(new FileWriter(file))) {
-                bw.write(content);
+            OutputStream outputStream = context.getContentResolver().openOutputStream(uri);
+            if (outputStream != null) {
+                outputStream.write(content.getBytes());
+                outputStream.close();
                 return true;
-            } catch (IOException e) {
-                Log.e("FileWrite", "Error writing file: " + e.getMessage());
-                throw e;
+            } else {
+                return false;
             }
         };
         return Futures.submit(task, MoreExecutors.directExecutor());
@@ -63,20 +57,21 @@ public class FileManager {
      * @return The content of the file.
      * @throws IOException If an I/O error occurs.
      */
-    public static ListenableFuture<String> read(Uri uri) throws IOException {
+    public static ListenableFuture<String> read(Uri uri, Context context) throws IOException {
 
         Callable<String> task = () -> {
-            File file = new File(uri.getPath());
-            StringBuilder contentBuilder = new StringBuilder();
-            try (BufferedReader br = new BufferedReader(new FileReader(file))) {
-                String line = null;
-                while ((line = br.readLine()) != null) {
-                    contentBuilder.append(line).append("\n");
+            StringBuilder stringBuilder = new StringBuilder();
+            InputStream inputStream = context.getContentResolver().openInputStream(uri);
+            if (inputStream != null) {
+                BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    stringBuilder.append(line);
                 }
-                return contentBuilder.toString();
-            } catch (IOException e) {
-                Log.e("FileRead", "Error reading file: " + e.getMessage());
-                throw e;
+                reader.close();
+                return stringBuilder.toString();
+            } else {
+                return null;
             }
         };
 

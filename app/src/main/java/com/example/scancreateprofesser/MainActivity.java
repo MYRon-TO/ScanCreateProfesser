@@ -4,13 +4,15 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
-import android.widget.Button;
-import android.widget.EditText;
 import android.widget.TextView;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
+
+import com.google.common.util.concurrent.FutureCallback;
+import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.MoreExecutors;
 
 import java.util.concurrent.ExecutionException;
 
@@ -42,11 +44,16 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-         preference = PreferenceManager.getInstance(this);
+        preference = PreferenceManager.getInstance(this);
+//        PreferenceManager.getInstance(this).setPreferenceIsFirstTime(true);
 
         try {
             if (preference.getPreferenceIsFirstTime()) {
+//            if (true) {
                 Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
+                intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                intent.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+
                 activityResultLauncher.launch(intent);
                 preference.setPreferenceIsFirstTime(false);
             }
@@ -63,54 +70,40 @@ public class MainActivity extends AppCompatActivity {
     protected void onStart() {
         super.onStart();
 
-        Button btAdd = findViewById(R.id.forTestButtonAdd);
-        EditText etTitle = findViewById(R.id.forTestTitle);
-        btAdd.setOnClickListener(v -> {
-            String title = etTitle.getText().toString();
-            if (title.isEmpty()) {
-                return;
-            }
-            NoteManager.getInstance().addNote(title);
-        });
+        Futures.addCallback(
+                NoteManager.getInstance().addNote("TestFile123"),
+                new FutureCallback<Uri> () {
+                    @Override
+                    public void onSuccess(Uri result) {
 
-        Button btWrite = findViewById(R.id.forTestButtonWrite);
-        EditText etWrite = findViewById(R.id.forTestContent);
+                        Log.d("MainActivity/WriteNote/UriResult", "Note added: " + result.toString());
 
-        try {
-            Uri aUri = NoteManager.getInstance().giveMeAnUri();
+                        try {
+                            NoteManager.getInstance().updateNote( result, "TestFile123" ).get();
+                        } catch (ExecutionException | InterruptedException e) {
+                            throw new RuntimeException(e);
+                        }
 
-            TextView tv = findViewById(R.id.forTestShowUri);
-            tv.setText(aUri.toString());
+                        Log.d("MainActivity/ReadNote/UriResult", "Note added: " + result);
 
-            btWrite.setOnClickListener(v -> {
-                String content = etWrite.getText().toString();
-                if (content.isEmpty()) {
-                    Log.e("MainActivity", "Content is empty");
-                    return;
-                }
+                        try {
+                            String Note = NoteManager.getInstance().readNote( result ).get();
 
-                NoteManager.getInstance().updateNote(
-                        aUri,
-                        content
-                );
-            });
+                            TextView tv = findViewById(R.id.forTestShowUri);
+                            tv.setText(Note);
 
-            Button btRead = findViewById(R.id.forTestButtonLoad);
-            btRead.setOnClickListener(v -> {
-                String content = null;
-                try {
-                    content = NoteManager.getInstance().readNote(
-                            aUri
-                    ).get();
-                } catch (ExecutionException | InterruptedException e) {
-                    throw new RuntimeException(e);
-                }
-                etWrite.setText(content);
-            });
+                        } catch (ExecutionException | InterruptedException e) {
+                            throw new RuntimeException(e);
+                        }
 
-        }catch (Exception e){
-            Log.e("MainActivity:GiveMeAUri", "Error: " + e.getMessage());
-        }
+                    }
+                    @Override
+                    public void onFailure(Throwable t) {
+                        Log.d("MainActivity/AddedNote", "Error: " + t.getMessage());
+                    }
+                },
+                MoreExecutors.directExecutor()
+        );
 
     }
 }

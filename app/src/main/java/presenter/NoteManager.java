@@ -64,11 +64,13 @@ public class NoteManager {
      * @param fileName The name of the note.
      * @return A future that will return true if the note was added successfully, false otherwise.
      */
-    public ListenableFuture<Boolean> addNote(String fileName) {
+    public ListenableFuture<Uri> addNote(String fileName) {
 
-        Callable<Boolean> task = () -> {
+        Callable<Uri> task = () -> {
+
             Uri dirToAddNote = preference.getPreferencePathToSaveNote();
             DocumentFile dir = DocumentFile.fromTreeUri(context, dirToAddNote);
+
             try {
                 assert dir != null;
                 DocumentFile file = dir.createFile("text/plain", fileName);
@@ -76,12 +78,14 @@ public class NoteManager {
                 assert file != null;
                 Uri fileUri = file.getUri();
 
+                Log.d("NoteManager/FileUri", "File URI: " + fileUri.toString());
+
                 // Add note to database
                 daoNote.insertNotes(new DataEntityNote(fileUri));
-                return true;
+                return fileUri;
             } catch (AssertionError | Exception e) {
                 Log.e("NoteManager", "Error adding note: " + e.getMessage());
-                return false;
+                return null;
             }
         };
 
@@ -90,10 +94,13 @@ public class NoteManager {
 
     public ListenableFuture<String> readNote(Uri fileUri) {
         Callable<String> task = () -> {
-            DocumentFile file = DocumentFile.fromTreeUri(context, fileUri);
+
+//            DocumentFile file = DocumentFile.fromTreeUri(context, fileUri);
+            DocumentFile file = DocumentFile.fromSingleUri(context, fileUri);
+
             try {
                 assert file != null;
-                ListenableFuture<String> result = FileManager.read(file.getUri());
+                ListenableFuture<String> result = FileManager.read(file.getUri(), context);
                 return result.get();
             } catch (AssertionError | Exception e) {
                 Log.e("NoteManager", "Error reading note: " + e.getMessage());
@@ -128,18 +135,24 @@ public class NoteManager {
         return Futures.submit(task, MoreExecutors.directExecutor());
     }
 
-    public ListenableFuture<Boolean> updateNote(Uri fileUri, String content) {
-        Callable<Boolean> task = () -> {
-            DocumentFile file = DocumentFile.fromTreeUri(context, fileUri);
+    public ListenableFuture<Void> updateNote(Uri fileUri, String content) {
+        Callable<Void> task = () -> {
+//            DocumentFile file = DocumentFile.fromTreeUri(context, fileUri);
+            DocumentFile file = DocumentFile.fromSingleUri(context, fileUri);
+
             try {
                 assert file != null;
-                ListenableFuture<Boolean> result = FileManager.write(file.getUri(), content);
-                return result.get();
 
+                Log.d("NoteManager/UpdateNote/FileUri", "File URI: " + file.getUri());
+                ListenableFuture<Boolean> result = FileManager.write(file.getUri(), content, context);
+
+                if(!result.get()){
+                    throw new Exception("Error writing to file");
+                }
             } catch (AssertionError | Exception e) {
                 Log.e("NoteManager", "Error updating note: " + e.getMessage());
-                return false;
             }
+            return null;
         };
         return Futures.submit(task, MoreExecutors.directExecutor());
     }
@@ -150,6 +163,15 @@ public class NoteManager {
     public Uri giveMeAnUri() throws ExecutionException, InterruptedException {
         DataEntityNote note = daoNote.giveMeANote().get();
         return note.getNoteFile();
+    }
+
+    public ListenableFuture<Void> clearDatabase() {
+        Callable<Void> task =  () -> {
+            db.clearAllTables();
+            return null;
+        };
+
+        return Futures.submit(task, MoreExecutors.directExecutor());
     }
 
 }
