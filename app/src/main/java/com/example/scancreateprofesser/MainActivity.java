@@ -63,47 +63,47 @@ public class MainActivity extends AppCompatActivity {
             throw e;
         }
 
-        setContentView(R.layout.for_test);
+        setContentView(R.layout.floder);
     }
 
     @Override
     protected void onStart() {
         super.onStart();
 
-        Futures.addCallback(
-                NoteManager.getInstance().addNote("TestFile123"),
-                new FutureCallback<Uri> () {
-                    @Override
-                    public void onSuccess(Uri result) {
-
-                        Log.d("MainActivity/WriteNote/UriResult", "Note added: " + result.toString());
-
-                        try {
-                            NoteManager.getInstance().updateNote( result, "TestFile123" ).get();
-                        } catch (ExecutionException | InterruptedException e) {
-                            throw new RuntimeException(e);
-                        }
-
-                        Log.d("MainActivity/ReadNote/UriResult", "Note added: " + result);
-
-                        try {
-                            String Note = NoteManager.getInstance().readNote( result ).get();
-
-                            TextView tv = findViewById(R.id.forTestShowUri);
-                            tv.setText(Note);
-
-                        } catch (ExecutionException | InterruptedException e) {
-                            throw new RuntimeException(e);
-                        }
-
-                    }
-                    @Override
-                    public void onFailure(Throwable t) {
-                        Log.d("MainActivity/AddedNote", "Error: " + t.getMessage());
-                    }
-                },
-                MoreExecutors.directExecutor()
-        );
+//        Futures.addCallback(
+//                NoteManager.getInstance().addNote("TestFile123"),
+//                new FutureCallback<Uri> () {
+//                    @Override
+//                    public void onSuccess(Uri result) {
+//
+//                        Log.d("MainActivity/WriteNote/UriResult", "Note added: " + result.toString());
+//
+//                        try {
+//                            NoteManager.getInstance().updateNote( result, "TestFile123" ).get();
+//                        } catch (ExecutionException | InterruptedException e) {
+//                            throw new RuntimeException(e);
+//                        }
+//
+//                        Log.d("MainActivity/ReadNote/UriResult", "Note added: " + result);
+//
+//                        try {
+//                            String Note = NoteManager.getInstance().readNote( result ).get();
+//
+//                            TextView tv = findViewById(R.id.forTestShowUri);
+//                            tv.setText(Note);
+//
+//                        } catch (ExecutionException | InterruptedException e) {
+//                            throw new RuntimeException(e);
+//                        }
+//
+//                    }
+//                    @Override
+//                    public void onFailure(Throwable t) {
+//                        Log.d("MainActivity/AddedNote", "Error: " + t.getMessage());
+//                    }
+//                },
+//                MoreExecutors.directExecutor()
+//        );
 
     }
 }

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle"> <!-- 注意：这里的"="后面应该是具体的值，而不是一个数组 -->
+
+    <!-- Corners 属性用于定义形状的角 -->
+    <corners
+        android:radius="10dp"/>
+</shape>
