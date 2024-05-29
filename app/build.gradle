@@ -53,4 +53,7 @@ dependencies {
     // document scanner
     implementation 'com.google.android.gms:play-services-mlkit-document-scanner:16.0.0-beta1'
 
+    // digital ink recognition
+    implementation 'com.google.mlkit:digital-ink-recognition:18.1.0'
+
 }

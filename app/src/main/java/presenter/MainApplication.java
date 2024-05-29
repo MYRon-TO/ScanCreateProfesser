@@ -6,8 +6,6 @@ import android.util.Log;
 
 public class MainApplication extends Application {
 
-    private NoteManager noteManager;
-
     @Override
     public void onCreate() {
         super.onCreate();
@@ -18,6 +16,7 @@ public class MainApplication extends Application {
             Log.e("MainApplication", "Context is null");
         }
 
-        noteManager = NoteManager.init(getApplicationContext());
+        NoteManager.init(getApplicationContext());
     }
+
 }

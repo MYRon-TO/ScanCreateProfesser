@@ -36,6 +36,7 @@ public class MainActivity extends AppCompatActivity {
                             Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION
                     );
                     preference.setPreferencePathToSaveNote(treeUri);
+
                 }
             }
     );

@@ -82,6 +82,7 @@ public class NoteManager {
 
                 // Add note to database
                 daoNote.insertNotes(new DataEntityNote(fileUri));
+
                 return fileUri;
             } catch (AssertionError | Exception e) {
                 Log.e("NoteManager", "Error adding note: " + e.getMessage());
@@ -155,14 +156,6 @@ public class NoteManager {
             return null;
         };
         return Futures.submit(task, MoreExecutors.directExecutor());
-    }
-
-    /**
-     * function to test <b>Do not use it</b>
-     */
-    public Uri giveMeAnUri() throws ExecutionException, InterruptedException {
-        DataEntityNote note = daoNote.giveMeANote().get();
-        return note.getNoteFile();
     }
 
     public ListenableFuture<Void> clearDatabase() {
