@@ -5,6 +5,9 @@ import android.content.SharedPreferences;
 import android.net.Uri;
 import android.provider.DocumentsContract;
 
+import com.google.mlkit.vision.digitalink.DigitalInkRecognitionModel;
+import com.google.mlkit.vision.digitalink.DigitalInkRecognitionModelIdentifier;
+
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
@@ -34,22 +37,26 @@ public class PreferenceManager {
 
     /**
      * <h2> PreferenceManager </h2>
-     *
-     * @param context The context of the application.
+     * You should <b>Init it once</b>
+     * @see PreferenceManager#init(Context context)
      */
-    public static PreferenceManager getInstance(Context context) {
-        if (instance == null) {
+    public static PreferenceManager getInstance() {
+        return instance;
+    }
+
+    public static PreferenceManager init(Context context) {
+        if (instance != null) {
+            throw new IllegalStateException("PreferenceManager is not initialized");
+        }else{
             synchronized (PreferenceManager.class) {
-                if (instance == null) {
-                    instance = new PreferenceManager(context);
-                }
+                instance = new PreferenceManager(context);
             }
         }
         return instance;
     }
 
     /**
-     * @see PreferenceManager#getInstance(Context context)
+     * @see PreferenceManager#init(Context context)
      * @param context The context of the application.
      */
     private PreferenceManager(Context context) {
@@ -159,4 +166,23 @@ public class PreferenceManager {
             lock.writeLock().unlock();
         }
     }
+
+    public String getPreferenceDigitalInkRecognitionModel() {
+        lock.readLock().lock();
+        try {
+            return sharedPreferences.getString("digitalInkRecognitionModel", "en-US");
+        } finally {
+            lock.readLock().unlock();
+        }
+    }
+
+    public void setPreferenceDigitalInkRecognitionModel(String languageTag) {
+        lock.writeLock().lock();
+        try {
+            sharedPreferences.edit().putString("digitalInkRecognitionModel", languageTag).apply();
+        } finally {
+            lock.writeLock().unlock();
+        }
+    }
+
 }

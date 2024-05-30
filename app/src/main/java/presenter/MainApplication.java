@@ -4,6 +4,8 @@ import android.app.Application;
 import android.content.Context;
 import android.util.Log;
 
+import model.preference.PreferenceManager;
+
 public class MainApplication extends Application {
 
     @Override
@@ -16,7 +18,8 @@ public class MainApplication extends Application {
             Log.e("MainApplication", "Context is null");
         }
 
-        NoteManager.init(getApplicationContext());
+        PreferenceManager.init(context);
+        NoteManager.init(context);
     }
 
 }

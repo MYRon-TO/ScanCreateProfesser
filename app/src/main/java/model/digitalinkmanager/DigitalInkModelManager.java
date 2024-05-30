@@ -1,4 +1,4 @@
-package model.modelManager;
+package model.digitalinkmanager;
 
 import android.util.Log;
 

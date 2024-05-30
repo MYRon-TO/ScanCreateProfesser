@@ -54,7 +54,7 @@ public class NoteManager {
         this.context = context;
         this.db = Room.databaseBuilder(context, DataBaseMain.class, "database").build();
         daoNote= db.daoNote();
-        preference = PreferenceManager.getInstance(context);
+        preference = PreferenceManager.getInstance();
     }
 
     /**

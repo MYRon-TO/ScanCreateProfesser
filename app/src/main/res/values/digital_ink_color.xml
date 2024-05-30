@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <integer name="current_stroke_paint_color">0xFFFF00FF</integer>
+    <integer name="recognized_stroke_paint">0xFFFFCCFF</integer>
+</resources>

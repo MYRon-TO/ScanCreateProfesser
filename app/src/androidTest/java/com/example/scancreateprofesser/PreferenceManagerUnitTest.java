@@ -17,7 +17,7 @@ public class PreferenceManagerUnitTest {
     @Before
     public void setUp(){
         Context context = ApplicationProvider.getApplicationContext();
-        preference = PreferenceManager.getInstance(context);
+        preference = PreferenceManager.init(context);
     }
 
     @Test
