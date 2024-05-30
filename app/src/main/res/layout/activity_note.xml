@@ -1,10 +1,69 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main"
+    android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".Note">
+    tools:context=".Note"
+    android:background="#ddd"
+    >
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+    <FrameLayout
+        android:layout_marginTop="50dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        >
+        <Button
+            style="?attr/materialIconButtonStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="left"
+            android:layout_marginLeft="60dp"
+            android:contentDescription="@string/standard_icon_btn_desc"
+            app:icon="@drawable/ic_icon_go_folder"
+            />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="笔记标题"
+            android:textSize="25dp"
+            />
+    </FrameLayout>
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+
+        >
+
+        <EditText
+            android:layout_width="350dp"
+            android:layout_height="600dp"
+            android:layout_marginTop="10dp"
+            android:gravity="left"
+            android:hint="笔记内容"
+            android:padding="10dp"
+            android:layout_gravity="center"
+            android:background="@drawable/angel_rounded"/>
+
+        <Button
+            style="?attr/materialIconButtonFilledStyle"
+
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|right"
+            android:layout_marginRight="40dp"
+            android:layout_marginBottom="40dp"
+            android:contentDescription="@string/filled_icon_btn_desc"
+            app:icon="@drawable/ic_icon_go_to_camera"
+            />
+    </FrameLayout>
+
+
+
+
+
+</LinearLayout>
