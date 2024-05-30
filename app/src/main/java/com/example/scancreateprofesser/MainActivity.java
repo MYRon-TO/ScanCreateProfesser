@@ -1,110 +1,224 @@
 package com.example.scancreateprofesser;
 
-import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
-import android.util.Log;
-import android.widget.TextView;
-
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
+import android.util.Log;
+import android.view.View;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemSelectedListener;
+import android.widget.ArrayAdapter;
+import android.widget.Spinner;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.annotation.VisibleForTesting;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSortedSet;
+import com.google.mlkit.vision.digitalink.DigitalInkRecognitionModelIdentifier;
+import java.util.Locale;
+import java.util.Set;
 
-import com.google.common.util.concurrent.FutureCallback;
-import com.google.common.util.concurrent.Futures;
-import com.google.common.util.concurrent.MoreExecutors;
+import presenter.digitalink.StrokeManager;
+import view.DrawingView;
+import view.StatusTextView;
 
-import java.util.concurrent.ExecutionException;
-
-import model.preference.PreferenceManager;
-import presenter.NoteManager;
-
-public class MainActivity extends AppCompatActivity {
-    PreferenceManager preference;
-
-    private final ActivityResultLauncher<Intent> activityResultLauncher = registerForActivityResult(
-            new ActivityResultContracts.StartActivityForResult(),
-            result -> {
-                if (result.getResultCode() == RESULT_OK) {
-                    Uri treeUri = result.getData() != null ? result.getData().getData() : null;
-                    if (treeUri == null) {
-                        Log.d("IntentError", "Tree URI is null");
-                        throw new IllegalStateException("Tree URI is null");
-                    }
-                    getContentResolver().takePersistableUriPermission(
-                            treeUri,
-                            Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION
-                    );
-                    preference.setPreferencePathToSaveNote(treeUri);
-
-                }
-            }
-    );
+/** Main activity which creates a StrokeManager and connects it to the DrawingView. */
+public class MainActivity extends AppCompatActivity implements StrokeManager.DownloadedModelsChangedListener {
+    private static final String TAG = "MLKDI.Activity";
+    private static final String GESTURE_EXTENSION = "-x-gesture";
+    private static final ImmutableMap<String, String> NON_TEXT_MODELS =
+            ImmutableMap.of(
+                    "zxx-Zsym-x-autodraw",
+                    "Autodraw",
+                    "zxx-Zsye-x-emoji",
+                    "Emoji",
+                    "zxx-Zsym-x-shapes",
+                    "Shapes");
+    @VisibleForTesting final StrokeManager strokeManager = new StrokeManager();
+    private ArrayAdapter<ModelLanguageContainer> languageAdapter;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.for_test);
 
-        preference = PreferenceManager.getInstance(this);
-//        PreferenceManager.getInstance(this).setPreferenceIsFirstTime(true);
+        Spinner languageSpinner = findViewById(R.id.languages_spinner);
 
-        try {
-            if (preference.getPreferenceIsFirstTime()) {
-//            if (true) {
-                Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
-                intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-                intent.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+        DrawingView drawingView = findViewById(R.id.drawing_view);
+        StatusTextView statusTextView = findViewById(R.id.status_text_view);
+        drawingView.setStrokeManager(strokeManager);
+        statusTextView.setStrokeManager(strokeManager);
 
-                activityResultLauncher.launch(intent);
-                preference.setPreferenceIsFirstTime(false);
-            }
-        } catch (Exception e) {
-            Log.d("MainActivity", "Error: " + e.getMessage());
-            // panic when error
-            throw e;
+        strokeManager.setStatusChangedListener(statusTextView);
+        strokeManager.setContentChangedListener(drawingView);
+        strokeManager.setDownloadedModelsChangedListener(this);
+        strokeManager.setClearCurrentInkAfterRecognition(true);
+        strokeManager.setTriggerRecognitionAfterInput(false);
+
+        languageAdapter = populateLanguageAdapter();
+        languageAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        languageSpinner.setAdapter(languageAdapter);
+        strokeManager.refreshDownloadedModelsStatus();
+
+        languageSpinner.setOnItemSelectedListener(
+                new OnItemSelectedListener() {
+                    @Override
+                    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                        String languageCode =
+                                ((ModelLanguageContainer) parent.getAdapter().getItem(position)).getLanguageTag();
+                        if (languageCode == null) {
+                            return;
+                        }
+                        Log.i(TAG, "Selected language: " + languageCode);
+                        strokeManager.setActiveModel(languageCode);
+                    }
+
+                    @Override
+                    public void onNothingSelected(AdapterView<?> parent) {
+                        Log.i(TAG, "No language selected");
+                    }
+                });
+
+        strokeManager.reset();
+    }
+
+    public void downloadClick(View v) {
+        strokeManager.download();
+    }
+
+    public void recognizeClick(View v) {
+        strokeManager.recognize();
+    }
+
+    public void clearClick(View v) {
+        strokeManager.reset();
+        DrawingView drawingView = findViewById(R.id.drawing_view);
+        drawingView.clear();
+    }
+
+    public void deleteClick(View v) {
+        strokeManager.deleteActiveModel();
+    }
+
+    private static class ModelLanguageContainer implements Comparable<ModelLanguageContainer> {
+        private final String label;
+        @Nullable private final String languageTag;
+        private boolean downloaded;
+
+        private ModelLanguageContainer(String label, @Nullable String languageTag) {
+            this.label = label;
+            this.languageTag = languageTag;
         }
 
-        setContentView(R.layout.for_test);
+        /**
+         * Populates and returns a real model identifier, with label, language tag and downloaded
+         * status.
+         */
+        public static ModelLanguageContainer createModelContainer(String label, String languageTag) {
+            // Offset the actual language labels for better readability
+            return new ModelLanguageContainer(label, languageTag);
+        }
+
+        /** Populates and returns a label only, without a language tag. */
+        public static ModelLanguageContainer createLabelOnly(String label) {
+            return new ModelLanguageContainer(label, null);
+        }
+
+        @Nullable
+        public String getLanguageTag() {
+            return languageTag;
+        }
+
+        public void setDownloaded(boolean downloaded) {
+            this.downloaded = downloaded;
+        }
+
+        @NonNull
+        @Override
+        public String toString() {
+            if (languageTag == null) {
+                return label;
+            } else if (downloaded) {
+                return "   [D] " + label;
+            } else {
+                return "   " + label;
+            }
+        }
+
+        @Override
+        public int compareTo(ModelLanguageContainer o) {
+            return label.compareTo(o.label);
+        }
     }
 
     @Override
-    protected void onStart() {
-        super.onStart();
+    public void onDownloadedModelsChanged(Set<String> downloadedLanguageTags) {
+        for (int i = 0; i < languageAdapter.getCount(); i++) {
+            ModelLanguageContainer container = languageAdapter.getItem(i);
 
-        Futures.addCallback(
-                NoteManager.getInstance().addNote("TestFile123"),
-                new FutureCallback<Uri> () {
-                    @Override
-                    public void onSuccess(Uri result) {
+            assert container != null;
 
-                        Log.d("MainActivity/WriteNote/UriResult", "Note added: " + result.toString());
+            container.setDownloaded(downloadedLanguageTags.contains(container.languageTag));
+        }
+        languageAdapter.notifyDataSetChanged();
+    }
 
-                        try {
-                            NoteManager.getInstance().updateNote( result, "TestFile123" ).get();
-                        } catch (ExecutionException | InterruptedException e) {
-                            throw new RuntimeException(e);
-                        }
+    private ArrayAdapter<ModelLanguageContainer> populateLanguageAdapter() {
+        ArrayAdapter<ModelLanguageContainer> languageAdapter =
+                new ArrayAdapter<>(this, android.R.layout.simple_spinner_item);
+        languageAdapter.add(ModelLanguageContainer.createLabelOnly("Select language"));
+        languageAdapter.add(ModelLanguageContainer.createLabelOnly("Non-text Models"));
 
-                        Log.d("MainActivity/ReadNote/UriResult", "Note added: " + result);
+        // Manually add non-text models first
+        for (String languageTag : NON_TEXT_MODELS.keySet()) {
+            languageAdapter.add(
+                    ModelLanguageContainer.createModelContainer(
+                            NON_TEXT_MODELS.get(languageTag), languageTag));
+        }
+        languageAdapter.add(ModelLanguageContainer.createLabelOnly("Text Models"));
 
-                        try {
-                            String Note = NoteManager.getInstance().readNote( result ).get();
+        ImmutableSortedSet.Builder<ModelLanguageContainer> textModels =
+                ImmutableSortedSet.naturalOrder();
+        for (DigitalInkRecognitionModelIdentifier modelIdentifier :
+                DigitalInkRecognitionModelIdentifier.allModelIdentifiers()) {
+            if (NON_TEXT_MODELS.containsKey(modelIdentifier.getLanguageTag())) {
+                continue;
+            }
+            if (modelIdentifier.getLanguageTag().endsWith(GESTURE_EXTENSION)) {
+                continue;
+            }
 
-                            TextView tv = findViewById(R.id.forTestShowUri);
-                            tv.setText(Note);
+            textModels.add(buildModelContainer(modelIdentifier, "Script"));
+        }
+        languageAdapter.addAll(textModels.build());
 
-                        } catch (ExecutionException | InterruptedException e) {
-                            throw new RuntimeException(e);
-                        }
+        languageAdapter.add(ModelLanguageContainer.createLabelOnly("Gesture Models"));
 
-                    }
-                    @Override
-                    public void onFailure(Throwable t) {
-                        Log.d("MainActivity/AddedNote", "Error: " + t.getMessage());
-                    }
-                },
-                MoreExecutors.directExecutor()
-        );
+        ImmutableSortedSet.Builder<ModelLanguageContainer> gestureModels =
+                ImmutableSortedSet.naturalOrder();
+        for (DigitalInkRecognitionModelIdentifier modelIdentifier :
+                DigitalInkRecognitionModelIdentifier.allModelIdentifiers()) {
+            if (!modelIdentifier.getLanguageTag().endsWith(GESTURE_EXTENSION)) {
+                continue;
+            }
 
+            gestureModels.add(buildModelContainer(modelIdentifier, "Script gesture classifier"));
+        }
+        languageAdapter.addAll(gestureModels.build());
+        return languageAdapter;
+    }
+
+    private static ModelLanguageContainer buildModelContainer(
+            DigitalInkRecognitionModelIdentifier modelIdentifier, String labelSuffix) {
+        StringBuilder label = new StringBuilder();
+        label.append(new Locale(modelIdentifier.getLanguageSubtag()).getDisplayName());
+        if (modelIdentifier.getRegionSubtag() != null) {
+            label.append(" (").append(modelIdentifier.getRegionSubtag()).append(")");
+        }
+
+        if (modelIdentifier.getScriptSubtag() != null) {
+            label.append(", ").append(modelIdentifier.getScriptSubtag()).append(" ").append(labelSuffix);
+        }
+        return ModelLanguageContainer.createModelContainer(
+                label.toString(), modelIdentifier.getLanguageTag());
     }
 }

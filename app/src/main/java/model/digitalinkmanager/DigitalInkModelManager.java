@@ -1,88 +1,116 @@
 package model.digitalinkmanager;
 
 import android.util.Log;
-
+import com.google.android.gms.tasks.Task;
+import com.google.android.gms.tasks.Tasks;
+import com.google.mlkit.common.MlKitException;
 import com.google.mlkit.common.model.DownloadConditions;
 import com.google.mlkit.common.model.RemoteModelManager;
+import com.google.mlkit.vision.digitalink.DigitalInkRecognition;
 import com.google.mlkit.vision.digitalink.DigitalInkRecognitionModel;
+import com.google.mlkit.vision.digitalink.DigitalInkRecognitionModelIdentifier;
+import com.google.mlkit.vision.digitalink.DigitalInkRecognizer;
+import com.google.mlkit.vision.digitalink.DigitalInkRecognizerOptions;
+import java.util.HashSet;
+import java.util.Set;
 
+/** Class to manage model downloading, deletion, and selection. */
 public class DigitalInkModelManager {
-    private final String LOGTAG = "DigitalInkModelManager";
 
-    private DigitalInkModelManager() {
+  private static final String TAG = "DigitalInkModelManager";
+  private DigitalInkRecognitionModel model;
+  private DigitalInkRecognizer recognizer;
+  final RemoteModelManager remoteModelManager = RemoteModelManager.getInstance();
+
+  public String setModel(String languageTag) {
+    // Clear the old model and recognizer.
+    model = null;
+    if (recognizer != null) {
+      recognizer.close();
+    }
+    recognizer = null;
+
+    // Try to parse the languageTag and get a model from it.
+    DigitalInkRecognitionModelIdentifier modelIdentifier;
+    try {
+      modelIdentifier = DigitalInkRecognitionModelIdentifier.fromLanguageTag(languageTag);
+    } catch (MlKitException e) {
+      Log.e(TAG, "Failed to parse language '" + languageTag + "'");
+      return "";
+    }
+    if (modelIdentifier == null) {
+      return "No model for language: " + languageTag;
     }
 
-    private static volatile DigitalInkModelManager instance = null;
+    // Initialize the model and recognizer.
+    model = DigitalInkRecognitionModel.builder(modelIdentifier).build();
+    recognizer =
+        DigitalInkRecognition.getClient(DigitalInkRecognizerOptions.builder(model).build());
+    Log.i(
+        TAG,
+        "Model set for language '"
+            + languageTag
+            + "' ('"
+            + modelIdentifier.getLanguageTag()
+            + "').");
+    return "Model set for language: " + languageTag;
+  }
 
-    public static DigitalInkModelManager getInstance() {
-        if (instance == null) {
-            synchronized (DigitalInkModelManager.class) {
-                if (instance == null) {
-                    instance = new DigitalInkModelManager();
-                }
-            }
-        }
-        return instance;
+  public DigitalInkRecognizer getRecognizer() {
+    return recognizer;
+  }
+
+  public Task<Boolean> checkIsModelDownloaded() {
+    return remoteModelManager.isModelDownloaded(model);
+  }
+
+  public Task<String> deleteActiveModel() {
+    if (model == null) {
+      Log.i(TAG, "Model not set");
+      return Tasks.forResult("Model not set");
     }
+    return checkIsModelDownloaded()
+        .onSuccessTask(
+            result -> {
+              if (!result) {
+                return Tasks.forResult("Model not downloaded yet");
+              }
+              return remoteModelManager
+                  .deleteDownloadedModel(model)
+                  .onSuccessTask(
+                      aVoid -> {
+                        Log.i(TAG, "Model successfully deleted");
+                        return Tasks.forResult("Model successfully deleted");
+                      });
+            })
+        .addOnFailureListener(e -> Log.e(TAG, "Error while model deletion: " + e));
+  }
 
-    private final RemoteModelManager remoteModelManager = RemoteModelManager.getInstance();
+  public Task<Set<String>> getDownloadedModelLanguages() {
+    return remoteModelManager
+        .getDownloadedModels(DigitalInkRecognitionModel.class)
+        .onSuccessTask(
+            (remoteModels) -> {
+              Set<String> result = new HashSet<>();
+              for (DigitalInkRecognitionModel model : remoteModels) {
+                result.add(model.getModelIdentifier().getLanguageTag());
+              }
+              Log.i(TAG, "Downloaded models for languages:" + result);
+              return Tasks.forResult(result);
+            });
+  }
 
-
-    /**
-     * Download the model from the server
-     * @param model The model to download
-     */
-    public void downloadModel(DigitalInkRecognitionModel model) {
-        remoteModelManager.download(model, new DownloadConditions.Builder().build())
-                .addOnSuccessListener(v -> {
-                    // Model downloaded successfully. Okay to start inference.
-                    Log.i(LOGTAG, "Model downloaded successfully. Okay to start inference.");
-                })
-                .addOnFailureListener(e -> {
-                    // Error.
-                    Log.e(LOGTAG, "Error downloading model: " + e.getMessage());
-                    throw new RuntimeException(e);
-                });
+  public Task<String> download() {
+    if (model == null) {
+      return Tasks.forResult("Model not selected.");
     }
-
-    /**
-     * Check if the model is downloaded, if not download it
-     * @param model The model to check
-     * @return True if the model is downloaded, false otherwise
-     */
-    public Boolean isModelDownloaded(DigitalInkRecognitionModel model) {
-        if (remoteModelManager.isModelDownloaded(model).getResult()) {
-            Log.i(LOGTAG, "Model is downloaded.");
-            return true;
-        } else {
-            Log.i(LOGTAG, "Model is not downloaded.");
-            Log.i(LOGTAG, "Downloading Model.");
-            try {
-                downloadModel(model);
-                return true;
-            } catch (Exception e) {
-                Log.e(LOGTAG, "Error downloading model: " + e.getMessage());
-                return false;
-            }
-        }
-    }
-
-    /**
-     * Delete the model from the device
-     * @param model The model to delete
-     */
-    public void deleteModel(DigitalInkRecognitionModel model) {
-        remoteModelManager.deleteDownloadedModel(model)
-                .addOnSuccessListener(v -> {
-                    // Model deleted successfully.
-                    Log.i(LOGTAG, "Model deleted successfully.");
-                })
-                .addOnFailureListener(e -> {
-                    // Error.
-                    Log.e(LOGTAG, "Error deleting model: " + e.getMessage());
-                    throw new RuntimeException(e);
-                });
-    }
-
-
+    return remoteModelManager
+        .download(model, new DownloadConditions.Builder().build())
+        .onSuccessTask(
+            aVoid -> {
+              Log.i(TAG, "Model download succeeded.");
+              return Tasks.forResult("Downloaded model successfully");
+            })
+        .addOnFailureListener(e -> Log.e(TAG, "Error while downloading the model: " + e));
+  }
 }
