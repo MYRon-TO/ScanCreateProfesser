@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
+
     <uses-permission android:name="android.permission.CAMERA" />
 
     <uses-feature
         android:name="android.hardware.camera"
-        android:required="false"
-        />
+        android:required="false" />
 
     <application
         android:name="presenter.MainApplication"
@@ -20,6 +20,9 @@
         android:theme="@style/Theme.ScanCreateProfesser"
         tools:targetApi="31">
         <activity
+            android:name=".Preference"
+            android:exported="false" />
+        <activity
             android:name=".MainActivity"
             android:exported="false" />
         <activity
@@ -30,8 +33,7 @@
             android:exported="false" />
         <activity
             android:name=".Camera"
-            android:exported="true"
-            >
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
