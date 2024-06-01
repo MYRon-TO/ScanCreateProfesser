@@ -256,37 +256,54 @@ public class StrokeManager {
         return gestureModelManager.getRecognizer() != null || writingModelManager.getRecognizer() != null;
     }
 
-    public void recognize() {
+    public void recognize(){
 
-        recognize(true).addOnCompleteListener(task -> {
-            if (task.isSuccessful() && task.getResult() != null) {
-                switch (task.getResult().type) {
-                    case Gesture:
-                    case TEXT:
-                        stateChangedSinceLastRequest = false;
-                        break;
-                    case TEXT_BUT_GESTURE:
-                        recognize(false);
-                        break;
-                }
-            }
-            uiHandler.sendMessageDelayed(
-                    uiHandler.obtainMessage(TIMEOUT_TRIGGER), CONVERSION_TIMEOUT_MS);
-        });
+        try {
+            recognize(true)
+                    .addOnCompleteListener(
+                            task -> {
+                                if (task.isSuccessful() && task.getResult() != null) {
+                                    switch (task.getResult().type) {
+                                        case Gesture:
+                                        case TEXT:
+                                            stateChangedSinceLastRequest = false;
+                                            break;
+                                        case TEXT_BUT_GESTURE:
+                                            try {
+                                                recognize(false);
+                                            } catch (Exception e) {
+                                                throw new RuntimeException(e);
+                                            }
+                                            break;
+                                    }
+
+                                    uiHandler.sendMessageDelayed(
+                                            uiHandler.obtainMessage(TIMEOUT_TRIGGER), CONVERSION_TIMEOUT_MS);
+                                }
+
+                            }
+                    )
+                    .addOnFailureListener(
+                            e -> {
+                                setStatus("Recognition failed: " + e.getMessage());
+                                reset();
+                            }
+                    );
+        }catch (Exception e){
+            Log.e(TAG, "recognize: " + e.getMessage());
+        }
     }
 
-    public Task<RecognitionTask.RecognizedInk> recognize(boolean isGesture) {
+    public Task<RecognitionTask.RecognizedInk> recognize(boolean isGesture) throws Exception {
 
         if (!stateChangedSinceLastRequest || inkBuilder.isEmpty()) {
-//        if (inkBuilder.isEmpty()) {
+
             setStatus("No recognition, ink unchanged or empty");
-            Tasks.forResult(null);
-            return null;
+            throw new Exception("No recognition, ink unchanged or empty");
         }
         if (!isSetRecognizer()) {
             setStatus("Recognizer not set");
-            Tasks.forResult(null);
-            return null;
+            throw new Exception("Recognizer not set");
         }
 
         DigitalInkModelManager modelManager = isGesture ? gestureModelManager : writingModelManager;
@@ -297,7 +314,7 @@ public class StrokeManager {
                         result -> {
                             if (!result) {
                                 setStatus("Model not downloaded yet");
-                                return Tasks.forResult(null);
+                                throw new Exception("Model not downloaded yet");
                             }
 
                             recognitionTask =
@@ -355,5 +372,4 @@ public class StrokeManager {
         }
         reset();
     }
-
 }
