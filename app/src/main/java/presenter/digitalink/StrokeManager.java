@@ -1,5 +1,6 @@
 package presenter.digitalink;
 
+import android.gesture.Gesture;
 import android.os.Handler;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -18,6 +19,7 @@ import java.util.Objects;
 import java.util.Set;
 
 import model.digitalinkmanager.DigitalInkModelManager;
+import view.DrawingView;
 
 /**
  * Manages the recognition logic and the content that has been added to the current page.
@@ -59,13 +61,16 @@ public class StrokeManager {
 
     @VisibleForTesting
     static final long CONVERSION_TIMEOUT_MS = 1000;
-    private static final String TAG = "MLKD.StrokeManager";
+    private static final String TAG = "StrokeManager";
     // This is a constant that is used as a message identifier to trigger the timeout.
     private static final int TIMEOUT_TRIGGER = 1;
     // For handling recognition and model downloading.
     private RecognitionTask recognitionTask = null;
     @VisibleForTesting
-    DigitalInkModelManager modelManager = new DigitalInkModelManager();
+    DigitalInkModelManager gestureModelManager = new DigitalInkModelManager();
+    @VisibleForTesting
+    DigitalInkModelManager writingModelManager = new DigitalInkModelManager();
+
     // Managing the recognition queue.
     private final List<RecognitionTask.RecognizedInk> content = new ArrayList<>();
     // Managing ink currently drawn.
@@ -79,17 +84,9 @@ public class StrokeManager {
     @Nullable
     private DownloadedModelsChangedListener downloadedModelsChangedListener = null;
 
-    private boolean triggerRecognitionAfterInput = true;
-    private boolean clearCurrentInkAfterRecognition = true;
+    private GestureHandler gestureHandler;
+
     private String status = "";
-
-    public void setTriggerRecognitionAfterInput(boolean shouldTrigger) {
-        triggerRecognitionAfterInput = shouldTrigger;
-    }
-
-    public void setClearCurrentInkAfterRecognition(boolean shouldClear) {
-        clearCurrentInkAfterRecognition = shouldClear;
-    }
 
     // Handler to handle the UI Timeout.
     // This handler is only used to trigger the UI timeout. Each time a UI interaction happens,
@@ -121,9 +118,9 @@ public class StrokeManager {
         if (recognitionTask.done() && recognitionTask.result() != null) {
             content.add(recognitionTask.result());
             setStatus("Successful recognition: " + Objects.requireNonNull(recognitionTask.result()).text);
-            if (clearCurrentInkAfterRecognition) {
-                resetCurrentInk();
-            }
+
+            resetCurrentInk();
+
             if (contentChangedListener != null) {
                 contentChangedListener.onContentChanged();
             }
@@ -178,9 +175,6 @@ public class StrokeManager {
                 inkBuilder.addStroke(strokeBuilder.build());
                 strokeBuilder = Ink.Stroke.builder();
                 stateChangedSinceLastRequest = true;
-                if (triggerRecognitionAfterInput) {
-                    recognize();
-                }
                 break;
             default:
                 // Indicate touch event wasn't handled.
@@ -215,11 +209,21 @@ public class StrokeManager {
     // Model downloading / deleting / setting.
 
     public void setActiveModel(String languageTag) {
-        setStatus(modelManager.setModel(languageTag));
+        setStatus(writingModelManager.setModel(languageTag));
+
+        String gestureModel = languageTag + "-x-gesture";
+        setStatus(gestureModelManager.setModel(gestureModel));
     }
 
-    public Task<Void> deleteActiveModel() {
-        return modelManager
+
+    // TODO: 6/1/24  delete model method
+    public void deleteModel() {
+        this.deleteSingleModel(gestureModelManager);
+        this.deleteSingleModel(writingModelManager);
+    }
+
+    public void deleteSingleModel(DigitalInkModelManager modelManager) {
+        modelManager
                 .deleteActiveModel()
                 .addOnSuccessListener(unused -> refreshDownloadedModelsStatus())
                 .onSuccessTask(
@@ -229,9 +233,14 @@ public class StrokeManager {
                         });
     }
 
-    public Task<Void> download() {
+    public void downloadModel() {
+        this.downloadSingleModel(gestureModelManager);
+        this.downloadSingleModel(writingModelManager);
+    }
+
+    public void downloadSingleModel(DigitalInkModelManager modelManager) {
         setStatus("Download started.");
-        return modelManager
+        modelManager
                 .download()
                 .addOnSuccessListener(unused -> refreshDownloadedModelsStatus())
                 .onSuccessTask(
@@ -243,16 +252,44 @@ public class StrokeManager {
 
     // Recognition-related.
 
-    public Task<String> recognize() {
+    private boolean isSetRecognizer() {
+        return gestureModelManager.getRecognizer() != null || writingModelManager.getRecognizer() != null;
+    }
+
+    public void recognize() {
+
+        recognize(true).addOnCompleteListener(task -> {
+            if (task.isSuccessful() && task.getResult() != null) {
+                switch (task.getResult().type) {
+                    case Gesture:
+                    case TEXT:
+                        stateChangedSinceLastRequest = false;
+                        break;
+                    case TEXT_BUT_GESTURE:
+                        recognize(false);
+                        break;
+                }
+            }
+            uiHandler.sendMessageDelayed(
+                    uiHandler.obtainMessage(TIMEOUT_TRIGGER), CONVERSION_TIMEOUT_MS);
+        });
+    }
+
+    public Task<RecognitionTask.RecognizedInk> recognize(boolean isGesture) {
 
         if (!stateChangedSinceLastRequest || inkBuilder.isEmpty()) {
+//        if (inkBuilder.isEmpty()) {
             setStatus("No recognition, ink unchanged or empty");
-            return Tasks.forResult(null);
+            Tasks.forResult(null);
+            return null;
         }
-        if (modelManager.getRecognizer() == null) {
+        if (!isSetRecognizer()) {
             setStatus("Recognizer not set");
-            return Tasks.forResult(null);
+            Tasks.forResult(null);
+            return null;
         }
+
+        DigitalInkModelManager modelManager = isGesture ? gestureModelManager : writingModelManager;
 
         return modelManager
                 .checkIsModelDownloaded()
@@ -263,23 +300,60 @@ public class StrokeManager {
                                 return Tasks.forResult(null);
                             }
 
-                            stateChangedSinceLastRequest = false;
                             recognitionTask =
                                     new RecognitionTask(modelManager.getRecognizer(), inkBuilder.build());
-                            uiHandler.sendMessageDelayed(
-                                    uiHandler.obtainMessage(TIMEOUT_TRIGGER), CONVERSION_TIMEOUT_MS);
-                            return recognitionTask.run();
+                            return recognitionTask.run(isGesture);
                         });
     }
 
     public void refreshDownloadedModelsStatus() {
-        modelManager
+        gestureModelManager
                 .getDownloadedModelLanguages()
                 .addOnSuccessListener(
                         downloadedLanguageTags -> {
                             if (downloadedModelsChangedListener != null) {
                                 downloadedModelsChangedListener.onDownloadedModelsChanged(downloadedLanguageTags);
                             }
-                        });
+                        }
+                );
+
+        writingModelManager
+                .getDownloadedModelLanguages()
+                .addOnSuccessListener(
+                        downloadedLanguageTags -> {
+                            if (downloadedModelsChangedListener != null) {
+                                downloadedModelsChangedListener.onDownloadedModelsChanged(downloadedLanguageTags);
+                            }
+                        }
+                );
     }
+
+    public void setGestureHandler(DrawingView v) {
+        this.gestureHandler = new GestureHandler(v);
+    }
+
+    public void handleGesture(RecognitionTask.RecognizedInk ri) {
+        switch (ri.type) {
+            case Gesture:
+                switch (ri.text) {
+                    case "strike":
+                    case "scribble":
+                        Log.d(TAG, "delete");
+                        gestureHandler.deleteWord(ri);
+                        break;
+                    case "writing":
+                        Log.e(TAG, "Error Writing");
+                        break;
+                }
+                break;
+            case TEXT:
+                gestureHandler.writeWord(ri);
+                break;
+            case TEXT_BUT_GESTURE:
+                Log.e(TAG + "/GestureHandler", "Error TEXT_BUT_GESTURE");
+                break;
+        }
+        reset();
+    }
+
 }

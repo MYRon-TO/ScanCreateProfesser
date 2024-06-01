@@ -1,19 +1,24 @@
 package com.example.scancreateprofesser;
 
 import android.os.Bundle;
+
 import androidx.appcompat.app.AppCompatActivity;
+
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
+
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSortedSet;
 import com.google.mlkit.vision.digitalink.DigitalInkRecognitionModelIdentifier;
+
 import java.util.Locale;
 import java.util.Set;
 
@@ -21,9 +26,11 @@ import presenter.digitalink.StrokeManager;
 import view.DrawingView;
 import view.StatusTextView;
 
-/** Main activity which creates a StrokeManager and connects it to the DrawingView. */
+/**
+ * Main activity which creates a StrokeManager and connects it to the DrawingView.
+ */
 public class MainActivity extends AppCompatActivity implements StrokeManager.DownloadedModelsChangedListener {
-    private static final String TAG = "MLKDI.Activity";
+    private static final String TAG = "Activity";
     private static final String GESTURE_EXTENSION = "-x-gesture";
     private static final ImmutableMap<String, String> NON_TEXT_MODELS =
             ImmutableMap.of(
@@ -33,7 +40,8 @@ public class MainActivity extends AppCompatActivity implements StrokeManager.Dow
                     "Emoji",
                     "zxx-Zsym-x-shapes",
                     "Shapes");
-    @VisibleForTesting final StrokeManager strokeManager = new StrokeManager();
+    @VisibleForTesting
+    final StrokeManager strokeManager = new StrokeManager();
     private ArrayAdapter<ModelLanguageContainer> languageAdapter;
 
     @Override
@@ -44,18 +52,23 @@ public class MainActivity extends AppCompatActivity implements StrokeManager.Dow
         Spinner languageSpinner = findViewById(R.id.languages_spinner);
 
         DrawingView drawingView = findViewById(R.id.drawing_view);
+
         StatusTextView statusTextView = findViewById(R.id.status_text_view);
+
         drawingView.setStrokeManager(strokeManager);
         statusTextView.setStrokeManager(strokeManager);
 
         strokeManager.setStatusChangedListener(statusTextView);
         strokeManager.setContentChangedListener(drawingView);
+
         strokeManager.setDownloadedModelsChangedListener(this);
-        strokeManager.setClearCurrentInkAfterRecognition(true);
-        strokeManager.setTriggerRecognitionAfterInput(false);
+
+//        strokeManager.setClearCurrentInkAfterRecognition(true);
+//        strokeManager.setTriggerRecognitionAfterInput(false);
 
         languageAdapter = populateLanguageAdapter();
         languageAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+
         languageSpinner.setAdapter(languageAdapter);
         strokeManager.refreshDownloadedModelsStatus();
 
@@ -81,27 +94,10 @@ public class MainActivity extends AppCompatActivity implements StrokeManager.Dow
         strokeManager.reset();
     }
 
-    public void downloadClick(View v) {
-        strokeManager.download();
-    }
-
-    public void recognizeClick(View v) {
-        strokeManager.recognize();
-    }
-
-    public void clearClick(View v) {
-        strokeManager.reset();
-        DrawingView drawingView = findViewById(R.id.drawing_view);
-        drawingView.clear();
-    }
-
-    public void deleteClick(View v) {
-        strokeManager.deleteActiveModel();
-    }
-
     private static class ModelLanguageContainer implements Comparable<ModelLanguageContainer> {
         private final String label;
-        @Nullable private final String languageTag;
+        @Nullable
+        private final String languageTag;
         private boolean downloaded;
 
         private ModelLanguageContainer(String label, @Nullable String languageTag) {
@@ -118,7 +114,9 @@ public class MainActivity extends AppCompatActivity implements StrokeManager.Dow
             return new ModelLanguageContainer(label, languageTag);
         }
 
-        /** Populates and returns a label only, without a language tag. */
+        /**
+         * Populates and returns a label only, without a language tag.
+         */
         public static ModelLanguageContainer createLabelOnly(String label) {
             return new ModelLanguageContainer(label, null);
         }
@@ -150,6 +148,24 @@ public class MainActivity extends AppCompatActivity implements StrokeManager.Dow
         }
     }
 
+    public void downloadClick(View v) {
+        strokeManager.downloadModel();
+    }
+
+    public void recognizeClick(View v) {
+        strokeManager.recognize();
+    }
+
+    public void clearClick(View v) {
+        strokeManager.reset();
+        DrawingView drawingView = findViewById(R.id.drawing_view);
+        drawingView.clear();
+    }
+
+    public void deleteClick(View v) {
+        strokeManager.deleteModel();
+    }
+
     @Override
     public void onDownloadedModelsChanged(Set<String> downloadedLanguageTags) {
         for (int i = 0; i < languageAdapter.getCount(); i++) {
@@ -163,17 +179,21 @@ public class MainActivity extends AppCompatActivity implements StrokeManager.Dow
     }
 
     private ArrayAdapter<ModelLanguageContainer> populateLanguageAdapter() {
+
         ArrayAdapter<ModelLanguageContainer> languageAdapter =
                 new ArrayAdapter<>(this, android.R.layout.simple_spinner_item);
-        languageAdapter.add(ModelLanguageContainer.createLabelOnly("Select language"));
-        languageAdapter.add(ModelLanguageContainer.createLabelOnly("Non-text Models"));
 
-        // Manually add non-text models first
-        for (String languageTag : NON_TEXT_MODELS.keySet()) {
-            languageAdapter.add(
-                    ModelLanguageContainer.createModelContainer(
-                            NON_TEXT_MODELS.get(languageTag), languageTag));
-        }
+        languageAdapter.add(ModelLanguageContainer.createLabelOnly("Select language"));
+//        languageAdapter.add(ModelLanguageContainer.createLabelOnly("Non-text Models"));
+//
+//        // Manually add non-text models first
+//        for (String languageTag : NON_TEXT_MODELS.keySet()) {
+//            languageAdapter.add(
+//                    ModelLanguageContainer.createModelContainer(
+//                            NON_TEXT_MODELS.get(languageTag), languageTag));
+//        }
+//
+//
         languageAdapter.add(ModelLanguageContainer.createLabelOnly("Text Models"));
 
         ImmutableSortedSet.Builder<ModelLanguageContainer> textModels =
@@ -191,19 +211,21 @@ public class MainActivity extends AppCompatActivity implements StrokeManager.Dow
         }
         languageAdapter.addAll(textModels.build());
 
-        languageAdapter.add(ModelLanguageContainer.createLabelOnly("Gesture Models"));
+//        languageAdapter.add(ModelLanguageContainer.createLabelOnly("Gesture Models"));
+//
+//        ImmutableSortedSet.Builder<ModelLanguageContainer> gestureModels =
+//                ImmutableSortedSet.naturalOrder();
+//        for (DigitalInkRecognitionModelIdentifier modelIdentifier :
+//                DigitalInkRecognitionModelIdentifier.allModelIdentifiers()) {
+//            if (!modelIdentifier.getLanguageTag().endsWith(GESTURE_EXTENSION)) {
+//                continue;
+//            }
+//
+//            gestureModels.add(buildModelContainer(modelIdentifier, "Script gesture classifier"));
+//        }
+//
+//        languageAdapter.addAll(gestureModels.build());
 
-        ImmutableSortedSet.Builder<ModelLanguageContainer> gestureModels =
-                ImmutableSortedSet.naturalOrder();
-        for (DigitalInkRecognitionModelIdentifier modelIdentifier :
-                DigitalInkRecognitionModelIdentifier.allModelIdentifiers()) {
-            if (!modelIdentifier.getLanguageTag().endsWith(GESTURE_EXTENSION)) {
-                continue;
-            }
-
-            gestureModels.add(buildModelContainer(modelIdentifier, "Script gesture classifier"));
-        }
-        languageAdapter.addAll(gestureModels.build());
         return languageAdapter;
     }
 
@@ -221,4 +243,37 @@ public class MainActivity extends AppCompatActivity implements StrokeManager.Dow
         return ModelLanguageContainer.createModelContainer(
                 label.toString(), modelIdentifier.getLanguageTag());
     }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        DrawingView view = findViewById(R.id.drawing_view);
+
+        String words = """
+                She walks in beauty, like the night
+                Of cloudless climes and starry skies;
+                And all that’s best of dark and bright
+                Meet in her aspect and her eyes;
+                Thus mellowed to that tender light
+                Which heaven to gaudy day denies.
+
+                One shade the more, one ray the less,
+                Had half impaired the nameless grace
+                Which waves in every raven tress,
+                Or softly lightens o’er her face;
+                Where thoughts serenely sweet express,
+                How pure, how dear their dwelling-place.
+
+                And on that cheek, and o’er that brow,
+                So soft, so calm, yet eloquent,
+                The smiles that win, the tints that glow,
+                But tell of days in goodness spent,
+                A mind at peace with all below,
+                A heart whose love is innocent!
+                 """;
+
+        view.setText(words);
+    }
+
 }
+

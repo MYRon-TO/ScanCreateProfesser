@@ -1,21 +1,21 @@
 package view;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Path;
-import android.graphics.Rect;
-import android.text.TextPaint;
+import android.text.Editable;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.MotionEvent;
-import android.view.View;
+
 import com.google.mlkit.vision.digitalink.Ink;
+
 import java.util.List;
 
+import presenter.digitalink.GestureHandler;
 import presenter.digitalink.RecognitionTask;
 import presenter.digitalink.StrokeManager;
 
@@ -25,16 +25,11 @@ import presenter.digitalink.StrokeManager;
  * <p>The view accepts touch inputs, renders them on screen, and passes the content to the
  * StrokeManager. The view is also able to draw content from the StrokeManager.
  */
-public class DrawingView extends View implements StrokeManager.ContentChangedListener {
+//public class DrawingView extends androidx.appcompat.widget.AppCompatEditText implements StrokeManager.ContentChangedListener {
+public class DrawingView extends androidx.appcompat.widget.AppCompatTextView implements StrokeManager.ContentChangedListener {
     private static final String TAG = "DrawingView";
     private static final int STROKE_WIDTH_DP = 3;
-    private static final int MIN_BB_WIDTH = 10;
-    private static final int MIN_BB_HEIGHT = 10;
-    private static final int MAX_BB_WIDTH = 256;
-    private static final int MAX_BB_HEIGHT = 256;
-
-    private final Paint recognizedStrokePaint;
-    private final TextPaint textPaint;
+//    private final Paint recognizedStrokePaint;
     private final Paint currentStrokePaint;
     private final Paint canvasPaint;
 
@@ -42,6 +37,7 @@ public class DrawingView extends View implements StrokeManager.ContentChangedLis
     private Canvas drawCanvas;
     private Bitmap canvasBitmap;
     private StrokeManager strokeManager;
+//    private DigitalInkManager digitalInkManager;
 
     public DrawingView(Context context) {
         this(context, null);
@@ -60,51 +56,17 @@ public class DrawingView extends View implements StrokeManager.ContentChangedLis
         currentStrokePaint.setStrokeJoin(Paint.Join.ROUND);
         currentStrokePaint.setStrokeCap(Paint.Cap.ROUND);
 
-        recognizedStrokePaint = new Paint(currentStrokePaint);
-        recognizedStrokePaint.setColor(0xFFFFCCFF); // pale pink.
-
-        textPaint = new TextPaint();
-        textPaint.setColor(0xFF33CC33); // green.
+//        recognizedStrokePaint = new Paint(currentStrokePaint);
+//        recognizedStrokePaint.setColor(0xFFFFCCFF); // pale pink.
 
         currentStroke = new Path();
         canvasPaint = new Paint(Paint.DITHER_FLAG);
     }
 
-    private static Rect computeBoundingBox(Ink ink) {
-        float top = Float.MAX_VALUE;
-        float left = Float.MAX_VALUE;
-        float bottom = Float.MIN_VALUE;
-        float right = Float.MIN_VALUE;
-        for (Ink.Stroke s : ink.getStrokes()) {
-            for (Ink.Point p : s.getPoints()) {
-                top = Math.min(top, p.getY());
-                left = Math.min(left, p.getX());
-                bottom = Math.max(bottom, p.getY());
-                right = Math.max(right, p.getX());
-            }
-        }
-        float centerX = (left + right) / 2;
-        float centerY = (top + bottom) / 2;
-        Rect bb = new Rect((int) left, (int) top, (int) right, (int) bottom);
-        // Enforce a minimum size of the bounding box such that recognitions for small inks are readable
-        bb.union(
-                (int) (centerX - MIN_BB_WIDTH / 2),
-                (int) (centerY - MIN_BB_HEIGHT / 2),
-                (int) (centerX + MIN_BB_WIDTH / 2),
-                (int) (centerY + MIN_BB_HEIGHT / 2));
-        // Enforce a maximum size of the bounding box, to ensure Emoji characters get displayed
-        // correctly
-        if (bb.width() > MAX_BB_WIDTH) {
-            bb.set(bb.centerX() - MAX_BB_WIDTH / 2, bb.top, bb.centerX() + MAX_BB_WIDTH / 2, bb.bottom);
-        }
-        if (bb.height() > MAX_BB_HEIGHT) {
-            bb.set(bb.left, bb.centerY() - MAX_BB_HEIGHT / 2, bb.right, bb.centerY() + MAX_BB_HEIGHT / 2);
-        }
-        return bb;
-    }
 
     public void setStrokeManager(StrokeManager strokeManager) {
         this.strokeManager = strokeManager;
+        this.strokeManager.setGestureHandler(this);
     }
 
     @Override
@@ -121,36 +83,14 @@ public class DrawingView extends View implements StrokeManager.ContentChangedLis
         drawInk(currentInk, currentStrokePaint);
 
         List<RecognitionTask.RecognizedInk> content = strokeManager.getContent();
+
         for (RecognitionTask.RecognizedInk ri : content) {
-            drawInk(ri.ink, recognizedStrokePaint);
-            final Rect bb = computeBoundingBox(ri.ink);
-            drawTextIntoBoundingBox(ri.text, bb, textPaint);
+            Log.d(TAG, "handleGesture once");
+            strokeManager.handleGesture(ri);
         }
+
         invalidate();
-    }
 
-    private void drawTextIntoBoundingBox(String text, Rect bb, TextPaint textPaint) {
-        final float arbitraryFixedSize = 20.f;
-        // Set an arbitrary text size to learn how high the text will be.
-        textPaint.setTextSize(arbitraryFixedSize);
-        textPaint.setTextScaleX(1.f);
-
-        // Now determine the size of the rendered text with these settings.
-        Rect r = new Rect();
-        textPaint.getTextBounds(text, 0, text.length(), r);
-
-        // Adjust height such that target height is met.
-        float textSize = arbitraryFixedSize * (float) bb.height() / (float) r.height();
-        textPaint.setTextSize(textSize);
-
-        // Redetermine the size of the rendered text with the new settings.
-        textPaint.getTextBounds(text, 0, text.length(), r);
-
-        // Adjust scaleX to squeeze the text.
-        textPaint.setTextScaleX((float) bb.width() / (float) r.width());
-
-        // And finally draw the text.
-        drawCanvas.drawText(text, bb.left, bb.bottom, textPaint);
     }
 
     private void drawInk(Ink ink, Paint paint) {
@@ -182,8 +122,11 @@ public class DrawingView extends View implements StrokeManager.ContentChangedLis
                 canvasBitmap.getHeight());
     }
 
-    @Override
+//    @Override
     protected void onDraw(Canvas canvas) {
+
+        super.onDraw(canvas); // 保留 EditText 的默认绘制逻辑
+
         canvas.drawBitmap(canvasBitmap, 0, 0, canvasPaint);
         canvas.drawPath(currentStroke, currentStrokePaint);
     }
@@ -218,4 +161,19 @@ public class DrawingView extends View implements StrokeManager.ContentChangedLis
     public void onContentChanged() {
         redrawContent();
     }
+
+    @Override
+    public Editable getText() {
+        CharSequence text = super.getText();
+        // This can only happen during construction.
+        if (text == null) {
+            return null;
+        }
+        if (text instanceof Editable) {
+            return (Editable) text;
+        }
+        super.setText(text, BufferType.EDITABLE);
+        return (Editable) super.getText();
+    }
+
 }
