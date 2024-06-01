@@ -59,7 +59,7 @@ public class StrokeManager {
 
     @VisibleForTesting
     static final long CONVERSION_TIMEOUT_MS = 1000;
-    private static final String TAG = "MLKD.StrokeManager";
+    private static final String TAG = "StrokeManager";
     // This is a constant that is used as a message identifier to trigger the timeout.
     private static final int TIMEOUT_TRIGGER = 1;
     // For handling recognition and model downloading.
