@@ -1,35 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/main"
-    android:orientation="vertical"
+    android:id="@+id/note_layout"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context=".Preference">
+    android:layout_height="match_parent">
 
-    <TextView
-
-        android:layout_marginTop="30dp"
-        android:layout_marginLeft="10dp"
-        android:layout_marginRight="10dp"
+    <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="字体"
-        android:background="@drawable/angel_rounded"
-        android:textSize="25sp"
-        android:padding="6dp"
-        android:gravity="center"
-        />
-    <TextView
-        android:layout_margin="10dp"
+        app:liftOnScroll="true">
+
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/topAppBar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:minHeight="?attr/actionBarSize"
+            app:navigationIcon="@drawable/back_to_folder_baseline_arrow_back_24"
+            app:title="@string/preference_layout_appbar_title" />
+
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <!-- res/layout/activity_settings.xml -->
+    <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="背景"
-        android:background="@drawable/angel_rounded"
-        android:textSize="25sp"
-        android:padding="6dp"
-        android:gravity="center"
+        android:layout_height="match_parent"
+        android:id="@+id/preference_container"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior"
         />
 
-</LinearLayout>
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

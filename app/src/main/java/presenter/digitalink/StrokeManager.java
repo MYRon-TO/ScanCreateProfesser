@@ -26,6 +26,24 @@ import view.DrawingView;
  */
 public class StrokeManager {
 
+    private StrokeManager strokeManager;
+    private static volatile StrokeManager instance;
+
+    public static StrokeManager getInstance(){
+        if (instance != null) {
+            return instance;
+        }else{
+            synchronized (StrokeManager.class) {
+                instance = new StrokeManager();
+            }
+        }
+        return instance;
+    }
+
+    public StrokeManager(){
+    }
+
+
     /**
      * Interface to register to be notified of changes in the recognized content.
      */
@@ -215,6 +233,25 @@ public class StrokeManager {
 
         String gestureModel = languageTag + "-x-gesture";
         setStatus(gestureModelManager.setModel(gestureModel));
+
+        writingModelManager.checkIsModelDownloaded().addOnSuccessListener(
+                result -> {
+                    if (!result) {
+                        setStatus("Writing Model not downloaded yet");
+                        downloadSingleModel(writingModelManager);
+                    }
+                }
+        );
+
+        gestureModelManager.checkIsModelDownloaded().addOnSuccessListener(
+                result -> {
+                    if (!result) {
+                        setStatus("Gesture Model not downloaded yet");
+                        downloadSingleModel(gestureModelManager);
+                    }
+                }
+        );
+
     }
 
 

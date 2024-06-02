@@ -23,7 +23,6 @@ public class DigitalInkModelManager {
 
     private static final String TAG = "DigitalInkModelManager";
     private DigitalInkRecognitionModel model;
-    private DigitalInkRecognitionModel gestureModel;
     private DigitalInkRecognizer recognizer;
     private DigitalInkRecognizer gestureRecognizer;
     final RemoteModelManager remoteModelManager = RemoteModelManager.getInstance();
@@ -42,18 +41,12 @@ public class DigitalInkModelManager {
         recognizer = null;
         gestureRecognizer = null;
 
-        String gestureLanguageTag = languageTag + "-x-gesture";
-
         try {
             setSingleModel(languageTag);
-            setSingleModel(gestureLanguageTag);
         } catch (RuntimeException e) {
             Log.e(TAG, "Failed to set model for language '" + languageTag + "'");
 
             return "Failed to set model for language '" + languageTag + "'";
-
-            // TODO: 6/1/24 throw an exception here
-
         }
 
         return "Model set for language: " + languageTag;

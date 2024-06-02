@@ -14,18 +14,8 @@ import view.StatusTextView;
 
 public class NoteActivity extends AppCompatActivity {
     private static final String TAG = "NoteActivity";
-    //    private static final String GESTURE_EXTENSION = "-x-gesture";
-//    private static final ImmutableMap<String, String> NON_TEXT_MODELS =
-//            ImmutableMap.of(
-//                    "zxx-Zsym-x-autodraw",
-//                    "Autodraw",
-//                    "zxx-Zsye-x-emoji",
-//                    "Emoji",
-//                    "zxx-Zsym-x-shapes",
-//                    "Shapes");
     @VisibleForTesting
-    final StrokeManager strokeManager = new StrokeManager();
-//    private ArrayAdapter<ModelLanguageContainer> languageAdapter;
+    final StrokeManager strokeManager = StrokeManager.getInstance();
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -33,11 +23,8 @@ public class NoteActivity extends AppCompatActivity {
 //        EdgeToEdge.enable(this);
         setContentView(R.layout.activity_note);
 
-//        Spinner languageSpinner = findViewById(R.id.languages_spinner);
-
         DrawingView drawingView = findViewById(R.id.drawing_view);
 
-//        StatusTextView statusTextView = findViewById(R.id.status_text_view);
         StatusTextView statusTextView = new StatusTextView(findViewById(R.id.note_layout));
 
         drawingView.setStrokeManager(strokeManager);
@@ -148,88 +135,6 @@ public class NoteActivity extends AppCompatActivity {
         DrawingView drawingView = findViewById(R.id.drawing_view);
         drawingView.clear();
     }
-
-//    public void deleteClick(View v) {
-//        strokeManager.deleteModel();
-//    }
-
-//    @Override
-//    public void onDownloadedModelsChanged(Set<String> downloadedLanguageTags) {
-//        for (int i = 0; i < languageAdapter.getCount(); i++) {
-//            ModelLanguageContainer container = languageAdapter.getItem(i);
-//
-//            assert container != null;
-//
-//            container.setDownloaded(downloadedLanguageTags.contains(container.languageTag));
-//        }
-//        languageAdapter.notifyDataSetChanged();
-//    }
-
-//    private ArrayAdapter<ModelLanguageContainer> populateLanguageAdapter() {
-//
-//        ArrayAdapter<ModelLanguageContainer> languageAdapter =
-//                new ArrayAdapter<>(this, android.R.layout.simple_spinner_item);
-//
-//        languageAdapter.add(ModelLanguageContainer.createLabelOnly("Select language"));
-////        languageAdapter.add(ModelLanguageContainer.createLabelOnly("Non-text Models"));
-////
-////        // Manually add non-text models first
-////        for (String languageTag : NON_TEXT_MODELS.keySet()) {
-////            languageAdapter.add(
-////                    ModelLanguageContainer.createModelContainer(
-////                            NON_TEXT_MODELS.get(languageTag), languageTag));
-////        }
-////
-////
-//        languageAdapter.add(ModelLanguageContainer.createLabelOnly("Text Models"));
-//
-//        ImmutableSortedSet.Builder<ModelLanguageContainer> textModels =
-//                ImmutableSortedSet.naturalOrder();
-//        for (DigitalInkRecognitionModelIdentifier modelIdentifier :
-//                DigitalInkRecognitionModelIdentifier.allModelIdentifiers()) {
-//            if (NON_TEXT_MODELS.containsKey(modelIdentifier.getLanguageTag())) {
-//                continue;
-//            }
-//            if (modelIdentifier.getLanguageTag().endsWith(GESTURE_EXTENSION)) {
-//                continue;
-//            }
-//
-//            textModels.add(buildModelContainer(modelIdentifier, "Script"));
-//        }
-//        languageAdapter.addAll(textModels.build());
-//
-////        languageAdapter.add(ModelLanguageContainer.createLabelOnly("Gesture Models"));
-////
-////        ImmutableSortedSet.Builder<ModelLanguageContainer> gestureModels =
-////                ImmutableSortedSet.naturalOrder();
-////        for (DigitalInkRecognitionModelIdentifier modelIdentifier :
-////                DigitalInkRecognitionModelIdentifier.allModelIdentifiers()) {
-////            if (!modelIdentifier.getLanguageTag().endsWith(GESTURE_EXTENSION)) {
-////                continue;
-////            }
-////
-////            gestureModels.add(buildModelContainer(modelIdentifier, "Script gesture classifier"));
-////        }
-////
-////        languageAdapter.addAll(gestureModels.build());
-//
-//        return languageAdapter;
-//    }
-
-//    private static ModelLanguageContainer buildModelContainer(
-//            DigitalInkRecognitionModelIdentifier modelIdentifier, String labelSuffix) {
-//        StringBuilder label = new StringBuilder();
-//        label.append(new Locale(modelIdentifier.getLanguageSubtag()).getDisplayName());
-//        if (modelIdentifier.getRegionSubtag() != null) {
-//            label.append(" (").append(modelIdentifier.getRegionSubtag()).append(")");
-//        }
-//
-//        if (modelIdentifier.getScriptSubtag() != null) {
-//            label.append(", ").append(modelIdentifier.getScriptSubtag()).append(" ").append(labelSuffix);
-//        }
-//        return ModelLanguageContainer.createModelContainer(
-//                label.toString(), modelIdentifier.getLanguageTag());
-//    }
 
     @Override
     protected void onStart() {

@@ -78,9 +78,6 @@
     <!--        android:layout_margin="16dp"-->
     <!--        android:layout_gravity="bottom|end"-->
 
-    <!--        android:contentDescription="TODO"-->
-
-
     <!--        app:srcCompat="@drawable/go_to_camera_baseline_camera_24" />-->
 
 

@@ -20,7 +20,7 @@
         android:theme="@style/Theme.ScanCreateProfessor"
         >
         <activity
-            android:name=".NoteActivity"
+            android:name=".PreferenceActivity"
             android:exported="false" />
         <activity
             android:name=".Camera"
@@ -29,7 +29,7 @@
             android:name=".Folder"
             android:exported="false" />
         <activity
-            android:name=".Preference"
+            android:name=".NoteActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
