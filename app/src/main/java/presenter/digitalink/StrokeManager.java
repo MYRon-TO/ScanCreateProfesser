@@ -107,7 +107,7 @@ public class StrokeManager {
                         return false;
                     });
 
-    private void setStatus(String newStatus) {
+    public void setStatus(String newStatus) {
         status = newStatus;
         if (statusChangedListener != null) {
             statusChangedListener.onStatusChanged();
@@ -134,7 +134,7 @@ public class StrokeManager {
         if (recognitionTask != null && !recognitionTask.done()) {
             recognitionTask.cancel();
         }
-        setStatus("");
+//        setStatus("");
     }
 
     private void resetCurrentInk() {

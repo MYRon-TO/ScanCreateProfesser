@@ -2,9 +2,14 @@ package view;
 
 import android.content.Context;
 import android.util.AttributeSet;
+import android.view.View;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+
+import com.example.scancreateprofessor.R;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.android.material.snackbar.Snackbar;
 
 import presenter.digitalink.StrokeManager;
 
@@ -13,21 +18,18 @@ import presenter.digitalink.StrokeManager;
  *
  * <p>It is updated upon status changes announced by the StrokeManager.
  */
-public class StatusTextView extends androidx.appcompat.widget.AppCompatTextView implements StrokeManager.StatusChangedListener {
+public class StatusTextView implements StrokeManager.StatusChangedListener {
 
     private StrokeManager strokeManager;
+    private final View view;
 
-    public StatusTextView(@NonNull Context context) {
-        super(context);
-    }
-
-    public StatusTextView(Context context, AttributeSet attributeSet) {
-        super(context, attributeSet);
+    public StatusTextView(View view) {
+        this.view = view;
     }
 
     @Override
     public void onStatusChanged() {
-        this.setText(this.strokeManager.getStatus());
+        Snackbar.make(view, this.strokeManager.getStatus(), Snackbar.LENGTH_SHORT).setAnchorView(R.id.note_layout_bottom_view).show();
     }
 
     public void setStrokeManager(StrokeManager strokeManager) {

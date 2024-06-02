@@ -1,69 +1,94 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/main"
-    android:orientation="vertical"
+    android:id="@+id/note_layout"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context=".Note"
-    android:background="#ddd"
-    >
+    android:layout_height="match_parent">
 
-    <FrameLayout
-        android:layout_marginTop="50dp"
+    <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        >
-        <Button
-            style="?attr/materialIconButtonStyle"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:gravity="left"
-            android:layout_marginLeft="60dp"
-            android:contentDescription="@string/standard_icon_btn_desc"
-            app:icon="@drawable/ic_icon_go_folder"
-            />
+        app:liftOnScroll="true">
 
-        <TextView
-            android:layout_width="wrap_content"
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/topAppBar"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:text="笔记标题"
-            android:textSize="25dp"
-            />
-    </FrameLayout>
-    <FrameLayout
+            android:minHeight="?attr/actionBarSize"
+            app:menu="@menu/note_app_bar"
+            app:navigationIcon="@drawable/back_to_folder_baseline_arrow_back_24" />
+
+    </com.google.android.material.appbar.AppBarLayout>
+
+
+    <!--    <androidx.core.widget.NestedScrollView-->
+    <!--        android:id="@+id/note_layout_nested_scroll_view"-->
+    <!--        android:layout_width="match_parent"-->
+    <!--        android:layout_height="match_parent"-->
+    <!--        app:layout_behavior="@string/appbar_scrolling_view_behavior">-->
+
+    <view.DrawingView
+        android:id="@+id/drawing_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:background="#80FFFFFF"
+        android:lineSpacingExtra="0dp"
+        android:lineSpacingMultiplier="1.0"
+        android:padding="0dp"
+        android:textSize="10pt"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior"
+        />
+    <!--    </androidx.core.widget.NestedScrollView>-->
 
-        >
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/recognize_floating_action_button"
+        style="?attr/floatingActionButtonSmallPrimaryStyle"
+        android:layout_width="wrap_content"
 
-        <EditText
-            android:layout_width="350dp"
-            android:layout_height="600dp"
-            android:layout_marginTop="10dp"
-            android:gravity="left"
-            android:hint="笔记内容"
-            android:padding="10dp"
-            android:layout_gravity="center"
-            android:background="@drawable/angel_rounded"/>
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_marginEnd="24dp"
 
-        <Button
-            style="?attr/materialIconButtonFilledStyle"
+        android:layout_marginBottom="96dp"
 
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="bottom|right"
-            android:layout_marginRight="40dp"
-            android:layout_marginBottom="40dp"
-            android:contentDescription="@string/filled_icon_btn_desc"
-            app:icon="@drawable/ic_icon_go_to_camera"
-            />
-    </FrameLayout>
-
+        android:contentDescription="TODO"
+        app:srcCompat="@drawable/recognize_outline_border_color_24"
+        android:onClick="recognizeClick"
+        />
 
 
+    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+        android:id="@+id/scan_extended_fab"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+
+        android:layout_gravity="bottom|end"
+        android:layout_margin="16dp"
+
+        android:contentDescription="TODO"
+
+        android:text="Scan"
+        app:icon="@drawable/camera_baseline_camera_alt_24" />
+
+    <!--    <com.google.android.material.floatingactionbutton.FloatingActionButton-->
+    <!--        android:id="@+id/floating_action_button"-->
+    <!--        android:layout_width="wrap_content"-->
+    <!--        android:layout_height="wrap_content"-->
+
+    <!--        android:layout_margin="16dp"-->
+    <!--        android:layout_gravity="bottom|end"-->
+
+    <!--        android:contentDescription="TODO"-->
 
 
-</LinearLayout>
+    <!--        app:srcCompat="@drawable/go_to_camera_baseline_camera_24" />-->
+
+
+    <View
+        android:id="@+id/note_layout_bottom_view"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_gravity="bottom|center"
+        android:layout_margin="100dp" />
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>
