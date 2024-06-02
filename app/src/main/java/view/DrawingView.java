@@ -5,20 +5,14 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Path;
-import android.graphics.Rect;
 import android.text.Editable;
-import android.text.Layout;
-import android.text.TextPaint;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.MotionEvent;
-import android.widget.EditText;
-import android.widget.TextView;
 
 import com.google.mlkit.vision.digitalink.Ink;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import presenter.digitalink.GestureHandler;
@@ -35,8 +29,7 @@ import presenter.digitalink.StrokeManager;
 public class DrawingView extends androidx.appcompat.widget.AppCompatTextView implements StrokeManager.ContentChangedListener {
     private static final String TAG = "DrawingView";
     private static final int STROKE_WIDTH_DP = 3;
-    private final Paint recognizedStrokePaint;
-    private final TextPaint textPaint;
+//    private final Paint recognizedStrokePaint;
     private final Paint currentStrokePaint;
     private final Paint canvasPaint;
 
@@ -44,6 +37,7 @@ public class DrawingView extends androidx.appcompat.widget.AppCompatTextView imp
     private Canvas drawCanvas;
     private Bitmap canvasBitmap;
     private StrokeManager strokeManager;
+//    private DigitalInkManager digitalInkManager;
 
     public DrawingView(Context context) {
         this(context, null);
@@ -62,11 +56,8 @@ public class DrawingView extends androidx.appcompat.widget.AppCompatTextView imp
         currentStrokePaint.setStrokeJoin(Paint.Join.ROUND);
         currentStrokePaint.setStrokeCap(Paint.Cap.ROUND);
 
-        recognizedStrokePaint = new Paint(currentStrokePaint);
-        recognizedStrokePaint.setColor(0xFFFFCCFF); // pale pink.
-
-        textPaint = new TextPaint();
-        textPaint.setColor(0xFF33CC33); // green.
+//        recognizedStrokePaint = new Paint(currentStrokePaint);
+//        recognizedStrokePaint.setColor(0xFFFFCCFF); // pale pink.
 
         currentStroke = new Path();
         canvasPaint = new Paint(Paint.DITHER_FLAG);
@@ -75,6 +66,7 @@ public class DrawingView extends androidx.appcompat.widget.AppCompatTextView imp
 
     public void setStrokeManager(StrokeManager strokeManager) {
         this.strokeManager = strokeManager;
+        this.strokeManager.setGestureHandler(this);
     }
 
     @Override
@@ -93,8 +85,8 @@ public class DrawingView extends androidx.appcompat.widget.AppCompatTextView imp
         List<RecognitionTask.RecognizedInk> content = strokeManager.getContent();
 
         for (RecognitionTask.RecognizedInk ri : content) {
-            drawInk(ri.ink, recognizedStrokePaint);
-            GestureHandler.handleGesture(ri, this);
+            Log.d(TAG, "handleGesture once");
+            strokeManager.handleGesture(ri);
         }
 
         invalidate();

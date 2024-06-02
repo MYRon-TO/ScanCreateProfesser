@@ -20,31 +20,21 @@ public class GestureHandler {
     private static final int MAX_BB_WIDTH = 256;
     private static final int MAX_BB_HEIGHT = 256;
 
-    public static void handleGesture(RecognitionTask.RecognizedInk ri, DrawingView view){
-        switch (ri.text){
-            case "strike":
-            case "scribble":
-                Log.d(TAG, "delete");
-                deleteWord(ri, view);
-                break;
-            case "writing":
-                writeWord(ri, view);
-                Log.d(TAG, "write");
-                break;
+    private DrawingView view;
 
-        }
+    public GestureHandler(DrawingView view){
+        this.view = view;
     }
 
-    private static void writeWord(RecognitionTask.RecognizedInk ri, DrawingView view){
+
+    public void writeWord(RecognitionTask.RecognizedInk ri){
         Editable editableText = view.getText();
         editableText.append(ri.text);
 
         Log.d(TAG, "write");
-
-
     }
 
-    private static void deleteWord(RecognitionTask.RecognizedInk ri, DrawingView view){
+    public void deleteWord(RecognitionTask.RecognizedInk ri){
 
         final Rect bb = computeBoundingBox(ri.ink);
         Layout layout = view.getLayout();
@@ -65,7 +55,7 @@ public class GestureHandler {
         }
     }
 
-    private static ArrayList<Integer> getCharacterOffsetFromRect(Layout layout, Rect rect) {
+    private ArrayList<Integer> getCharacterOffsetFromRect(Layout layout, Rect rect) {
         ArrayList<Integer> offsets = new ArrayList<>();
         int start = getCharacterOffsetFromPoint(layout, rect.left, rect.top);
         int end = getCharacterOffsetFromPoint(layout, rect.right, rect.bottom);
@@ -74,7 +64,7 @@ public class GestureHandler {
         return offsets;
     }
 
-    private static int getCharacterOffsetFromPoint(Layout layout, float x, float y) {
+    private int getCharacterOffsetFromPoint(Layout layout, float x, float y) {
         if (layout != null) {
             int line = layout.getLineForVertical((int) y);
             return layout.getOffsetForHorizontal(line, (int) x);
@@ -82,7 +72,7 @@ public class GestureHandler {
         return -1;
     }
 
-    private static Rect computeBoundingBox(Ink ink) {
+    private Rect computeBoundingBox(Ink ink) {
         float top = Float.MAX_VALUE;
         float left = Float.MAX_VALUE;
         float bottom = Float.MIN_VALUE;
