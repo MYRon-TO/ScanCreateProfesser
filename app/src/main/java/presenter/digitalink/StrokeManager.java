@@ -1,6 +1,5 @@
 package presenter.digitalink;
 
-import android.gesture.Gesture;
 import android.os.Handler;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -19,6 +18,7 @@ import java.util.Objects;
 import java.util.Set;
 
 import model.digitalinkmanager.DigitalInkModelManager;
+import model.preference.PreferenceManager;
 import view.DrawingView;
 
 /**
@@ -206,7 +206,9 @@ public class StrokeManager {
         return status;
     }
 
-    // Model downloading / deleting / setting.
+    public void setActiveModel() {
+        setActiveModel(PreferenceManager.getInstance().getPreferenceDigitalInkRecognitionModel());
+    }
 
     public void setActiveModel(String languageTag) {
         setStatus(writingModelManager.setModel(languageTag));
@@ -216,13 +218,12 @@ public class StrokeManager {
     }
 
 
-    // TODO: 6/1/24  delete model method
     public void deleteModel() {
         this.deleteSingleModel(gestureModelManager);
         this.deleteSingleModel(writingModelManager);
     }
 
-    public void deleteSingleModel(DigitalInkModelManager modelManager) {
+    private void deleteSingleModel(DigitalInkModelManager modelManager) {
         modelManager
                 .deleteActiveModel()
                 .addOnSuccessListener(unused -> refreshDownloadedModelsStatus())
@@ -238,7 +239,7 @@ public class StrokeManager {
         this.downloadSingleModel(writingModelManager);
     }
 
-    public void downloadSingleModel(DigitalInkModelManager modelManager) {
+    private void downloadSingleModel(DigitalInkModelManager modelManager) {
         setStatus("Download started.");
         modelManager
                 .download()
@@ -256,6 +257,8 @@ public class StrokeManager {
         return gestureModelManager.getRecognizer() != null || writingModelManager.getRecognizer() != null;
     }
 
+    /** recognize the ink drawn on the screen. *
+     */
     public void recognize(){
 
         try {
@@ -276,7 +279,6 @@ public class StrokeManager {
                                             }
                                             break;
                                     }
-
                                     uiHandler.sendMessageDelayed(
                                             uiHandler.obtainMessage(TIMEOUT_TRIGGER), CONVERSION_TIMEOUT_MS);
                                 }
