@@ -1,4 +1,4 @@
-package com.example.scancreateprofesser;
+package com.example.scancreateprofessor;
 
 import android.os.Bundle;
 import android.view.View;

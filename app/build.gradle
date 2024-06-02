@@ -3,11 +3,11 @@ plugins {
 }
 
 android {
-    namespace 'com.example.scancreateprofesser'
+    namespace 'com.example.scancreateprofessor'
     compileSdk 34
 
     defaultConfig {
-        applicationId "com.example.scancreateprofesser"
+        applicationId "com.example.scancreateprofessor"
         minSdk 31
         targetSdk 34
         versionCode 1
@@ -62,3 +62,4 @@ dependencies {
     implementation "androidx.camera:camera-view:${camerax_version}"
     implementation 'com.google.mlkit:face-detection:16.1.6'
 
+}

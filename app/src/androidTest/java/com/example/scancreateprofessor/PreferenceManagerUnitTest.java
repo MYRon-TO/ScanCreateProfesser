@@ -1,4 +1,4 @@
-package com.example.scancreateprofesser;
+package com.example.scancreateprofessor;
 
 import static org.junit.Assert.assertEquals;
 

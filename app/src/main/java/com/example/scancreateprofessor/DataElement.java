@@ -1,4 +1,4 @@
-package com.example.scancreateprofesser;
+package com.example.scancreateprofessor;
 
 public class DataElement {
     public CharSequence Title;
