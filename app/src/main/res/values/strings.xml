@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">Scan Create Professer</string>
+    <string name="standard_icon_btn_desc">goFolder</string>
+    <string name="filled_icon_btn_desc">goToCamera</string>
 </resources>
