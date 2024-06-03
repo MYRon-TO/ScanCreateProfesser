@@ -1,4 +1,4 @@
-package com.example.scancreateprofessor.folderrecycleview;
+package view.folderrecycleview;
 
 import android.view.LayoutInflater;
 import android.view.View;

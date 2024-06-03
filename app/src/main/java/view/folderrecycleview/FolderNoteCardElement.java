@@ -1,4 +1,4 @@
-package com.example.scancreateprofessor.folderrecycleview;
+package view.folderrecycleview;
 
 public class FolderNoteCardElement {
     public CharSequence NoteTitle;

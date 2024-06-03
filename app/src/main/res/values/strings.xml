@@ -5,4 +5,11 @@
     <string name="preference_layout_appbar_title">Preference</string>
     <string name="sample_title_folder_note_card_row_item">Title</string>
     <string name="sample_content_folder_note_card_row_item">supporting_text</string>
+    <string name="add_new_note_description_float_button_activity_folder">Add New Note</string>
+    <string name="add_new_note_text_float_button_activity_folder">Add</string>
+    <string name="scan_text_float_button_activity_note">Scan</string>
+    <string name="scan_description_float_button_activity_note">TODO</string>
+    <string name="recognize_description_float_button_activity_note">TODO</string>
+    <string name="label_text_field_add_new_note_dialog">Title</string>
+    <string name="sample_title_text_field_add_new_note_dialog">New_Note</string>
 </resources>

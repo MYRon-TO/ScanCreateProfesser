@@ -1,8 +1,10 @@
 package model.database;
 
 import android.net.Uri;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
+import androidx.documentfile.provider.DocumentFile;
 import androidx.room.AutoMigration;
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
@@ -10,32 +12,29 @@ import androidx.room.PrimaryKey;
 import androidx.room.TypeConverter;
 import androidx.room.TypeConverters;
 
+import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.ListenableFuture;
+import com.google.common.util.concurrent.MoreExecutors;
+
 import java.time.OffsetDateTime;
+import java.util.concurrent.Callable;
+
+import model.filemanager.FileManager;
 
 @Entity(tableName = "note")
 @TypeConverters(Converters.class)
 public class DataEntityNote {
 
-//    @PrimaryKey(autoGenerate = true)
-//    private Integer id;
-
     @PrimaryKey
     @ColumnInfo(name = "note_file_uri")
     @NonNull
     private Uri noteFile;
+    @NonNull
+    private String title;
 
-//    @ColumnInfo(name = "title")
-//    private String title;
-
-//    @ColumnInfo(name = "change_at")
-//    private OffsetDateTime changeAt;
-
-//    public DataEntityNote(@NonNull Uri noteFile, String title, OffsetDateTime changeAt) {
-//    public DataEntityNote(@NonNull Uri noteFile, String title) {
-    public DataEntityNote(@NonNull Uri noteFile) {
+    public DataEntityNote(@NonNull Uri noteFile, @NonNull String title) {
         this.noteFile = noteFile;
-//        this.title = title;
-//        this.changeAt = changeAt;
+        this.title = title;
     }
 
     @NonNull
@@ -43,35 +42,20 @@ public class DataEntityNote {
         return noteFile;
     }
 
-//    public String getTitle() {
-//        return title;
-//    }
-
-//    public OffsetDateTime getChangeAt() {
-//        return changeAt;
-//    }
-
     public void setNoteFile(@NonNull Uri noteFile) {
         this.noteFile = noteFile;
     }
 
-//    public void setTitle(String title) {
-//        this.title = title;
-//    }
+    @NonNull
+    public String getTitle(){
+        return title;
+    }
 
-//    public void setChangeAt(OffsetDateTime changeAt) {
-//        this.changeAt = changeAt;
-//    }
+    public void setTitle(@NonNull String title) {
+        this.title = title;
+    }
 
-//    public Integer getId() {
-//        return id;
-//    }
-
-//    public void setId(Integer id) {
-//        this.id = id;
-//    }
 }
-
 
 class Converters {
 

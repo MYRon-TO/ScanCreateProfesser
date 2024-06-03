@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/note_layout"
+    android:id="@+id/coordinator_layout_activity_note"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
@@ -11,7 +11,7 @@
         app:liftOnScroll="true">
 
         <com.google.android.material.appbar.MaterialToolbar
-            android:id="@+id/topAppBar"
+            android:id="@+id/top_app_bar_activity_note"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:minHeight="?attr/actionBarSize"
@@ -28,7 +28,7 @@
     <!--        app:layout_behavior="@string/appbar_scrolling_view_behavior">-->
 
     <view.DrawingView
-        android:id="@+id/drawing_view"
+        android:id="@+id/drawing_view_activity_note"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="#80FFFFFF"
@@ -41,7 +41,7 @@
     <!--    </androidx.core.widget.NestedScrollView>-->
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/recognize_floating_action_button"
+        android:id="@+id/recognize_floating_action_button_activity_note"
         style="?attr/floatingActionButtonSmallPrimaryStyle"
         android:layout_width="wrap_content"
 
@@ -51,38 +51,27 @@
 
         android:layout_marginBottom="96dp"
 
-        android:contentDescription="TODO"
+        android:contentDescription="@string/recognize_description_float_button_activity_note"
         app:srcCompat="@drawable/recognize_outline_border_color_24"
         android:onClick="recognizeClick"
         />
 
 
     <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
-        android:id="@+id/scan_extended_fab"
+        android:id="@+id/scan_extended_fab_activity_note"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
 
         android:layout_gravity="bottom|end"
         android:layout_margin="16dp"
 
-        android:contentDescription="TODO"
+        android:contentDescription="@string/scan_description_float_button_activity_note"
 
-        android:text="Scan"
+        android:text="@string/scan_text_float_button_activity_note"
         app:icon="@drawable/camera_baseline_camera_alt_24" />
 
-    <!--    <com.google.android.material.floatingactionbutton.FloatingActionButton-->
-    <!--        android:id="@+id/floating_action_button"-->
-    <!--        android:layout_width="wrap_content"-->
-    <!--        android:layout_height="wrap_content"-->
-
-    <!--        android:layout_margin="16dp"-->
-    <!--        android:layout_gravity="bottom|end"-->
-
-    <!--        app:srcCompat="@drawable/go_to_camera_baseline_camera_24" />-->
-
-
     <View
-        android:id="@+id/note_layout_bottom_view"
+        android:id="@+id/bottom_view_activity_note"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_gravity="bottom|center"

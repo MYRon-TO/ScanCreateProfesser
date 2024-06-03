@@ -77,4 +77,33 @@ public class FileManager {
 
         return Futures.submit(task, MoreExecutors.directExecutor());
     }
+
+    /**
+     * Read content from a file.
+     * @param uri The uri of the file.
+     * @return The content of the file.
+     * @throws IOException If an I/O error occurs.
+     */
+    public static ListenableFuture<String> preview(Uri uri, Context context, int NUM_OF_LINES) throws IOException {
+
+        Callable<String> task = () -> {
+            StringBuilder stringBuilder = new StringBuilder();
+            InputStream inputStream = context.getContentResolver().openInputStream(uri);
+            if (inputStream != null) {
+                BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+                String line;
+                int count = NUM_OF_LINES;
+                while ((line = reader.readLine()) != null && count > 0) {
+                    stringBuilder.append(line);
+                    count -= 1;
+                }
+                reader.close();
+                return stringBuilder.toString();
+            } else {
+                return null;
+            }
+        };
+
+        return Futures.submit(task, MoreExecutors.directExecutor());
+    }
 }

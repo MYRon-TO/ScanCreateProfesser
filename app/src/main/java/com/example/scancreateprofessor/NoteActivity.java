@@ -2,7 +2,6 @@ package com.example.scancreateprofessor;
 
 import android.os.Bundle;
 import android.view.View;
-import android.widget.Button;
 
 import androidx.annotation.VisibleForTesting;
 import androidx.appcompat.app.AppCompatActivity;
@@ -23,9 +22,9 @@ public class NoteActivity extends AppCompatActivity {
 //        EdgeToEdge.enable(this);
         setContentView(R.layout.activity_note);
 
-        DrawingView drawingView = findViewById(R.id.drawing_view);
+        DrawingView drawingView = findViewById(R.id.drawing_view_activity_note);
 
-        StatusTextView statusTextView = new StatusTextView(findViewById(R.id.note_layout));
+        StatusTextView statusTextView = new StatusTextView(findViewById(R.id.coordinator_layout_activity_note));
 
         drawingView.setStrokeManager(strokeManager);
         statusTextView.setStrokeManager(strokeManager);
@@ -132,14 +131,14 @@ public class NoteActivity extends AppCompatActivity {
 
     public void clearClick(View v) {
         strokeManager.reset();
-        DrawingView drawingView = findViewById(R.id.drawing_view);
+        DrawingView drawingView = findViewById(R.id.drawing_view_activity_note);
         drawingView.clear();
     }
 
     @Override
     protected void onStart() {
         super.onStart();
-        DrawingView view = findViewById(R.id.drawing_view);
+        DrawingView view = findViewById(R.id.drawing_view_activity_note);
         strokeManager.setStatus("Ready");
 
         String words = """

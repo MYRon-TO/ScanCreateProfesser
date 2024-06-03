@@ -1,24 +1,71 @@
 package com.example.scancreateprofessor;
 
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.StaggeredGridLayoutManager;
 
-import com.example.scancreateprofessor.folderrecycleview.FolderNoteCardAdapter;
-import com.example.scancreateprofessor.folderrecycleview.FolderNoteCardElement;
+import model.preference.PreferenceManager;
+import view.AddNoteDialog;
+import view.folderrecycleview.FolderNoteCardAdapter;
+import view.folderrecycleview.FolderNoteCardElement;
+
+import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 
 import java.util.ArrayList;
 
+import model.database.DataEntityNote;
 import presenter.NoteManager;
 
-public class FolderActivity extends AppCompatActivity {
+public class FolderActivity extends AppCompatActivity implements AddNoteDialog.AddNoteDialogListener {
+    private final static String TAG = "FolderActivity";
+    private final PreferenceManager preference = PreferenceManager.getInstance();
+
+    private final ActivityResultLauncher<Intent> permissionActivityResultLauncher = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(),
+            result -> {
+                if (result.getResultCode() == RESULT_OK) {
+                    Uri treeUri = result.getData() != null ? result.getData().getData() : null;
+                    if (treeUri == null) {
+                        Log.d("IntentError", "Tree URI is null");
+                        throw new IllegalStateException("Tree URI is null");
+                    }
+                    getContentResolver().takePersistableUriPermission(
+                            treeUri,
+                            Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+                    );
+                    preference.setPreferencePathToSaveNote(treeUri);
+                }
+            }
+    );
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_folder);
+
+//        NoteManager.getInstance().clearDatabase();
+
+        try {
+            if (preference.getPreferenceIsFirstTime()) {
+                Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
+                intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                intent.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+
+                permissionActivityResultLauncher.launch(intent);
+                preference.setPreferenceIsFirstTime(false);
+            }
+        } catch (Exception e) {
+            Log.d("MainActivity", "Error: " + e.getMessage());
+            // panic when error
+            throw e;
+        }
     }
 
 
@@ -26,7 +73,7 @@ public class FolderActivity extends AppCompatActivity {
     protected void onStart() {
         super.onStart();
 
-        RecyclerView recyclerView = findViewById(R.id.recyclerview);
+        RecyclerView recyclerView = findViewById(R.id.recyclerview_activity_folder);
 
         recyclerView.setLayoutManager(new StaggeredGridLayoutManager(
                 2,
@@ -38,18 +85,37 @@ public class FolderActivity extends AppCompatActivity {
         );
 
         recyclerView.setAdapter(adapter);
+
+        ExtendedFloatingActionButton newFab = findViewById(R.id.add_extended_fab_activity_folder);
+        newFab.setOnClickListener(
+                v -> {
+                    AddNoteDialog dialog = new AddNoteDialog();
+                    dialog.show(getSupportFragmentManager(), "AddNoteDialog");
+                }
+        );
     }
 
     private ArrayList<FolderNoteCardElement> setFolderNoteCardElementData() {
-        ArrayList<FolderNoteCardElement> data = new ArrayList<>();
+        ArrayList<FolderNoteCardElement> noteArray = new ArrayList<>();
 
-//        NoteManager.getInstance().
+        ArrayList<DataEntityNote> dataList = NoteManager.getInstance().getAllNotes();
 
-        data.add(new FolderNoteCardElement("1", "Google"));
-        data.add(new FolderNoteCardElement("2", "Huawei"));
-        data.add(new FolderNoteCardElement("3", "Xiaomi"));
+        for (DataEntityNote data : dataList) {
+            try {
+                String title = data.getTitle();
+                String content = NoteManager.getInstance().previewNote(data.getNoteFile()).get();
+                noteArray.add(new FolderNoteCardElement(title, content));
+            } catch (Exception e) {
+                Log.e(TAG, "Error: Can Not Preview Note" + e.getMessage());
+            }
+        }
+        return noteArray;
+    }
 
-        return data;
+    @Override
+    public void onAddNoteDialogPositiveClick(String fileTitle) {
+        Log.i(TAG, "onAddNoteDialogPositiveClick! FileTitle: " + fileTitle);
+        NoteManager.getInstance().addNote(fileTitle);
     }
 
 }
