@@ -3,4 +3,6 @@
     <string name="standard_icon_btn_desc">goFolder</string>
     <string name="filled_icon_btn_desc">goToCamera</string>
     <string name="preference_layout_appbar_title">Preference</string>
+    <string name="sample_title_folder_note_card_row_item">Title</string>
+    <string name="sample_content_folder_note_card_row_item">supporting_text</string>
 </resources>

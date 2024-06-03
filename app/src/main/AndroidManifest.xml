@@ -26,10 +26,10 @@
             android:name=".Camera"
             android:exported="false" />
         <activity
-            android:name=".Folder"
+            android:name=".NoteActivity"
             android:exported="false" />
         <activity
-            android:name=".NoteActivity"
+            android:name=".FolderActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

@@ -25,7 +25,7 @@ import model.preference.PreferenceManager;
 public class NoteManager {
     private static volatile NoteManager instance = null;
 
-    private Context context;
+    private final Context context;
 
     public static NoteManager getInstance() {
         if (instance == null) {
