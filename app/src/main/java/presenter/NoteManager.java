@@ -163,14 +163,16 @@ public class NoteManager {
             DocumentFile file = DocumentFile.fromSingleUri(context, fileUri);
 
             try {
-                assert file != null;
 
+                assert file != null;
                 Log.d("NoteManager/UpdateNote/FileUri", "File URI: " + file.getUri());
+                Log.d("NoteManager/UpdateNote/FileUri", "Content: " + content);
                 ListenableFuture<Boolean> result = FileManager.write(file.getUri(), content, context);
 
                 if(!result.get()){
                     throw new Exception("Error writing to file");
                 }
+
             } catch (AssertionError | Exception e) {
                 Log.e("NoteManager", "Error updating note: " + e.getMessage());
             }

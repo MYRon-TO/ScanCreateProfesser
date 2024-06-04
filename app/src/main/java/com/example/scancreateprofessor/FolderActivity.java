@@ -7,16 +7,21 @@ import android.util.Log;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.StaggeredGridLayoutManager;
 
+import model.UriStringConverters;
 import model.preference.PreferenceManager;
 import view.AddNoteDialog;
 import view.folderrecycleview.FolderNoteCardAdapter;
 import view.folderrecycleview.FolderNoteCardElement;
 
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
+import com.google.common.util.concurrent.FutureCallback;
+import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.MoreExecutors;
 
 import java.util.ArrayList;
 
@@ -81,7 +86,8 @@ public class FolderActivity extends AppCompatActivity implements AddNoteDialog.A
 
         FolderNoteCardAdapter adapter = new FolderNoteCardAdapter(
                 R.layout.folder_note_card_row_item,
-                setFolderNoteCardElementData()
+                setFolderNoteCardElementData(),
+                this
         );
 
         recyclerView.setAdapter(adapter);
@@ -104,7 +110,8 @@ public class FolderActivity extends AppCompatActivity implements AddNoteDialog.A
             try {
                 String title = data.getTitle();
                 String content = NoteManager.getInstance().previewNote(data.getNoteFile()).get();
-                noteArray.add(new FolderNoteCardElement(title, content));
+                Uri uri = data.getNoteFile();
+                noteArray.add(new FolderNoteCardElement(title, content, uri));
             } catch (Exception e) {
                 Log.e(TAG, "Error: Can Not Preview Note" + e.getMessage());
             }
@@ -115,7 +122,24 @@ public class FolderActivity extends AppCompatActivity implements AddNoteDialog.A
     @Override
     public void onAddNoteDialogPositiveClick(String fileTitle) {
         Log.i(TAG, "onAddNoteDialogPositiveClick! FileTitle: " + fileTitle);
-        NoteManager.getInstance().addNote(fileTitle);
-    }
+        Futures.addCallback(
+                NoteManager.getInstance().addNote(fileTitle),
+                new FutureCallback<Uri>() {
+                    @Override
+                    public void onSuccess(Uri result) {
+                        Intent intent = new Intent(FolderActivity.this, NoteActivity.class);
 
+                        Log.d(TAG+"/intent", UriStringConverters.stringFromUri(result));
+                        intent.putExtra("FileUri", UriStringConverters.stringFromUri(result));
+                        intent.putExtra("Title",fileTitle);
+                        startActivity(intent);
+                    }
+                    @Override
+                    public void onFailure(@NonNull Throwable t) {
+                        Log.e(TAG, "Error: Can Not Add Note" + t.getMessage());
+                    }
+                },
+                MoreExecutors.directExecutor()
+        );
+    }
 }

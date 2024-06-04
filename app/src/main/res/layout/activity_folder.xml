@@ -14,17 +14,10 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
-<!--            <com.google.android.material.button.MaterialButton-->
-<!--                android:id="@+id/iconButton"-->
-<!--                style="?attr/materialIconButtonStyle"-->
-<!--                android:layout_width="wrap_content"-->
-<!--                android:layout_height="match_parent"-->
-<!--                android:contentDescription="@string/standard_icon_btn_desc"-->
-<!--                app:icon="@drawable/temp_go_to_preference_baseline_apps_24" />-->
-
             <com.google.android.material.search.SearchBar
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content" />
+
         </LinearLayout>
 
     </com.google.android.material.appbar.AppBarLayout>

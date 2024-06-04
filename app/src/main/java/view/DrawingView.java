@@ -5,16 +5,20 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Path;
+import android.net.Uri;
 import android.text.Editable;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.MotionEvent;
+import android.widget.EditText;
+import android.widget.TextView;
 
 import com.google.mlkit.vision.digitalink.Ink;
 
 import java.util.List;
 
+import presenter.NoteManager;
 import presenter.digitalink.GestureHandler;
 import presenter.digitalink.RecognitionTask;
 import presenter.digitalink.StrokeManager;
@@ -26,7 +30,7 @@ import presenter.digitalink.StrokeManager;
  * StrokeManager. The view is also able to draw content from the StrokeManager.
  */
 //public class DrawingView extends androidx.appcompat.widget.AppCompatEditText implements StrokeManager.ContentChangedListener {
-public class DrawingView extends androidx.appcompat.widget.AppCompatTextView implements StrokeManager.ContentChangedListener {
+public class DrawingView extends TextView implements StrokeManager.ContentChangedListener {
     private static final String TAG = "DrawingView";
     private static final int STROKE_WIDTH_DP = 3;
 //    private final Paint recognizedStrokePaint;
@@ -37,6 +41,7 @@ public class DrawingView extends androidx.appcompat.widget.AppCompatTextView imp
     private Canvas drawCanvas;
     private Bitmap canvasBitmap;
     private StrokeManager strokeManager;
+    private Uri fileUri;
 //    private DigitalInkManager digitalInkManager;
 
     public DrawingView(Context context) {
@@ -62,7 +67,6 @@ public class DrawingView extends androidx.appcompat.widget.AppCompatTextView imp
         currentStroke = new Path();
         canvasPaint = new Paint(Paint.DITHER_FLAG);
     }
-
 
     public void setStrokeManager(StrokeManager strokeManager) {
         this.strokeManager = strokeManager;
@@ -90,7 +94,6 @@ public class DrawingView extends androidx.appcompat.widget.AppCompatTextView imp
         }
 
         invalidate();
-
     }
 
     private void drawInk(Ink ink, Paint paint) {
@@ -101,14 +104,9 @@ public class DrawingView extends androidx.appcompat.widget.AppCompatTextView imp
 
     private void drawStroke(Ink.Stroke s, Paint paint) {
         Log.i(TAG, "draw stroke");
-        Path path = null;
+        Path path = new Path();
         for (Ink.Point p : s.getPoints()) {
-            if (path == null) {
-                path = new Path();
-                path.moveTo(p.getX(), p.getY());
-            } else {
-                path.lineTo(p.getX(), p.getY());
-            }
+            path.lineTo(p.getX(), p.getY());
         }
         drawCanvas.drawPath(path, paint);
     }
@@ -160,11 +158,24 @@ public class DrawingView extends androidx.appcompat.widget.AppCompatTextView imp
     @Override
     public void onContentChanged() {
         redrawContent();
+        if(fileUri == null) {
+            Log.e(TAG + "/onContentChanged", "NO File");
+        }else {
+            Editable content = this.getText();
+            String str = content.toString();
+            Log.d(TAG + "/onContentChanged/write", str);
+            NoteManager.getInstance().updateNote(fileUri, str);
+        }
+    }
+
+    public void setFileUri(Uri file){
+        fileUri = file;
     }
 
     @Override
     public Editable getText() {
         CharSequence text = super.getText();
+        Log.d(TAG, "getText: " + text);
         // This can only happen during construction.
         if (text == null) {
             return null;

@@ -142,6 +142,7 @@ public class StrokeManager {
             if (contentChangedListener != null) {
                 contentChangedListener.onContentChanged();
             }
+
         }
     }
 

@@ -1,11 +1,15 @@
 package view.folderrecycleview;
 
-public class FolderNoteCardElement {
-    public CharSequence NoteTitle;
-    public CharSequence NoteContent;
+import android.net.Uri;
 
-    public FolderNoteCardElement(CharSequence title, CharSequence text) {
-        NoteTitle = title;
-        NoteContent = text;
+public class FolderNoteCardElement {
+    public CharSequence noteTitle;
+    public CharSequence noteContent;
+    public Uri fileUri;
+
+    public FolderNoteCardElement(CharSequence title, CharSequence text, Uri fileUri) {
+        noteTitle = title;
+        noteContent = text;
+        this.fileUri = fileUri;
     }
 }
