@@ -1,5 +1,6 @@
 package com.example.scancreateprofessor;
 
+import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
@@ -13,8 +14,6 @@ import com.google.android.material.appbar.MaterialToolbar;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.MoreExecutors;
-
-import java.util.concurrent.ExecutionException;
 
 import model.UriStringConverters;
 import presenter.NoteManager;
@@ -58,19 +57,20 @@ public class NoteActivity extends AppCompatActivity {
 
         MaterialToolbar appBar = findViewById(R.id.top_app_bar_activity_note);
         appBar.setTitle(fileTitle);
+        appBar.setNavigationOnClickListener(
+                v -> {
+                    Intent intent = new Intent(NoteActivity.this, FolderActivity.class);
+                    startActivity(intent);
+                }
+        );
 
     }
 
 
     public void recognizeClick(View v) {
         strokeManager.recognize();
+        drawingView.clear();
     }
-
-//    public void clearClick(View v) {
-//        strokeManager.reset();
-//        DrawingView drawingView = findViewById(R.id.drawing_view_activity_note);
-//        drawingView.clear();
-//    }
 
     @Override
     protected void onStart() {
@@ -79,7 +79,7 @@ public class NoteActivity extends AppCompatActivity {
 
         Futures.addCallback(
                 NoteManager.getInstance().readNote(fileUri),
-                new FutureCallback<String>() {
+                new FutureCallback<>() {
                     @Override
                     public void onSuccess(String result) {
                         String content = result == null ? "" : result;

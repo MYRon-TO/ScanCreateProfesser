@@ -12,4 +12,6 @@
     <string name="recognize_description_float_button_activity_note">TODO</string>
     <string name="label_text_field_add_new_note_dialog">Title</string>
     <string name="sample_title_text_field_add_new_note_dialog">New_Note</string>
+    <string name="title_app_bar_folder_app_bar">Note</string>
+    <string name="button_title_preference_menu_app_bar_activity_folder">goToPreference</string>
 </resources>

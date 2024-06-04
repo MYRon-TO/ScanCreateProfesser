@@ -12,12 +12,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.StaggeredGridLayoutManager;
 
-import model.UriStringConverters;
-import model.preference.PreferenceManager;
-import view.AddNoteDialog;
-import view.folderrecycleview.FolderNoteCardAdapter;
-import view.folderrecycleview.FolderNoteCardElement;
-
+import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
@@ -25,8 +20,13 @@ import com.google.common.util.concurrent.MoreExecutors;
 
 import java.util.ArrayList;
 
+import model.UriStringConverters;
 import model.database.DataEntityNote;
+import model.preference.PreferenceManager;
 import presenter.NoteManager;
+import view.AddNoteDialog;
+import view.folderrecycleview.FolderNoteCardAdapter;
+import view.folderrecycleview.FolderNoteCardElement;
 
 public class FolderActivity extends AppCompatActivity implements AddNoteDialog.AddNoteDialogListener {
     private final static String TAG = "FolderActivity";
@@ -54,6 +54,17 @@ public class FolderActivity extends AppCompatActivity implements AddNoteDialog.A
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_folder);
+
+        MaterialToolbar appBar = findViewById(R.id.top_app_bar_activity_folder);
+        appBar.setOnMenuItemClickListener(
+                menuItem ->{
+                    Log.d(TAG + "/appBar", String.valueOf(menuItem.getItemId()));
+                    if (menuItem.getItemId() == R.id.preference_menu_app_bar_activity_folder) {
+                        startActivity(new Intent(this, PreferenceActivity.class));
+                    }
+                    return true;
+                }
+        );
 
 //        NoteManager.getInstance().clearDatabase();
 
@@ -113,7 +124,12 @@ public class FolderActivity extends AppCompatActivity implements AddNoteDialog.A
                 Uri uri = data.getNoteFile();
                 noteArray.add(new FolderNoteCardElement(title, content, uri));
             } catch (Exception e) {
-                Log.e(TAG, "Error: Can Not Preview Note" + e.getMessage());
+   //    public void clearClick(View v) {
+//        strokeManager.reset();
+//        DrawingView drawingView = findViewById(R.id.drawing_view_activity_note);
+//        drawingView.clear();
+//    }
+             Log.e(TAG, "Error: Can Not Preview Note" + e.getMessage());
             }
         }
         return noteArray;
@@ -124,16 +140,17 @@ public class FolderActivity extends AppCompatActivity implements AddNoteDialog.A
         Log.i(TAG, "onAddNoteDialogPositiveClick! FileTitle: " + fileTitle);
         Futures.addCallback(
                 NoteManager.getInstance().addNote(fileTitle),
-                new FutureCallback<Uri>() {
+                new FutureCallback<>() {
                     @Override
                     public void onSuccess(Uri result) {
                         Intent intent = new Intent(FolderActivity.this, NoteActivity.class);
 
-                        Log.d(TAG+"/intent", UriStringConverters.stringFromUri(result));
+                        Log.d(TAG + "/intent", UriStringConverters.stringFromUri(result));
                         intent.putExtra("FileUri", UriStringConverters.stringFromUri(result));
-                        intent.putExtra("Title",fileTitle);
+                        intent.putExtra("Title", fileTitle);
                         startActivity(intent);
                     }
+
                     @Override
                     public void onFailure(@NonNull Throwable t) {
                         Log.e(TAG, "Error: Can Not Add Note" + t.getMessage());
@@ -142,4 +159,5 @@ public class FolderActivity extends AppCompatActivity implements AddNoteDialog.A
                 MoreExecutors.directExecutor()
         );
     }
+
 }

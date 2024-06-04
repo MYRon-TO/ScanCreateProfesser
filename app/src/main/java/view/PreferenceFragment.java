@@ -1,20 +1,22 @@
-package com.example.scancreateprofessor;
+package view;
 
 import android.os.Bundle;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatDelegate;
 import androidx.preference.ListPreference;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
+import androidx.preference.SwitchPreferenceCompat;
 
+import com.example.scancreateprofessor.R;
 import com.google.common.collect.ImmutableMap;
 import com.google.mlkit.vision.digitalink.DigitalInkRecognitionModelIdentifier;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 
 import model.preference.PreferenceManager;
 import presenter.digitalink.StrokeManager;
@@ -36,12 +38,33 @@ public class PreferenceFragment extends PreferenceFragmentCompat {
     @Override
     public void onCreatePreferences(@Nullable Bundle savedInstanceState, @Nullable String rootKey) {
         setPreferencesFromResource(R.xml.preference, rootKey);
+        // * Theme
+        SwitchPreferenceCompat darkModeSwitch = findPreference("set_dark_mode");
+        PreferenceManager.getInstance().getPreferenceIsDarkMode();
 
+        if (darkModeSwitch == null){
+            Log.e(TAG, "darkModeSwitch is null");
+            throw new RuntimeException("darkModeSwitch is null");
+        }
+        darkModeSwitch.setDefaultValue(PreferenceManager.getInstance().getPreferenceIsDarkMode());
+        darkModeSwitch.setOnPreferenceChangeListener(
+                (preference, newValue) -> {
+                    boolean isDarkMode = (boolean) newValue;
+                    if(isDarkMode){
+                        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
+                    }else {
+                        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
+                    }
+                    PreferenceManager.getInstance().setPreferenceIsDarkMode(isDarkMode);
+                    return true;
+                }
+        );
+
+        // * Recognize
         ListPreference languageTagList = findPreference("language_tag");
         if (languageTagList == null) {
             Log.e(TAG, "languageTagList is null");
             throw new RuntimeException("languageTagList is null");
-
         }
         List<String> entries = new ArrayList<>();
 
