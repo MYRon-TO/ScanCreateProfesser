@@ -26,7 +26,7 @@ import view.DrawingView;
  */
 public class StrokeManager {
 
-    private StrokeManager strokeManager;
+//    private StrokeManager strokeManager;
     private static volatile StrokeManager instance;
 
     public static StrokeManager getInstance(){
@@ -142,6 +142,7 @@ public class StrokeManager {
             if (contentChangedListener != null) {
                 contentChangedListener.onContentChanged();
             }
+
         }
     }
 
@@ -336,7 +337,6 @@ public class StrokeManager {
     public Task<RecognitionTask.RecognizedInk> recognize(boolean isGesture) throws Exception {
 
         if (!stateChangedSinceLastRequest || inkBuilder.isEmpty()) {
-
             setStatus("No recognition, ink unchanged or empty");
             throw new Exception("No recognition, ink unchanged or empty");
         }

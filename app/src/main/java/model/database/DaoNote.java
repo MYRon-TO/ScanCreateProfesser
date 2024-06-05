@@ -1,5 +1,7 @@
 package model.database;
 
+import android.net.Uri;
+
 import androidx.room.Dao;
 import androidx.room.Delete;
 import androidx.room.Insert;
@@ -8,6 +10,8 @@ import androidx.room.Query;
 import androidx.room.Update;
 
 import com.google.common.util.concurrent.ListenableFuture;
+
+import java.util.List;
 
 @Dao
 public interface DaoNote {
@@ -21,11 +25,10 @@ public interface DaoNote {
     @Update
     public ListenableFuture<Integer> updateNotes(DataEntityNote... notes);
 
-    @Query("SELECT * FROM note LIMIT 1")
-    public ListenableFuture<DataEntityNote> giveMeANote ();
+    @Query("SELECT * FROM note")
+    public ListenableFuture<List<DataEntityNote>> getAllNote ();
 
-//    @Query("SELECT * FROM note")
-//    public ListenableFuture<DataEntityNote> queryNote ();
+    @Query("SELECT * FROM note WHERE note_file_uri = :noteFile")
+    public ListenableFuture<DataEntityNote> getNoteByUri(String noteFile);
 
-    // TODO: 5/24/24 query 
 }

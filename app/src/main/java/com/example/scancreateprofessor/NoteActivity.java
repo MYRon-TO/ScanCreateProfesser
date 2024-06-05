@@ -1,171 +1,98 @@
 package com.example.scancreateprofessor;
 
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
-import android.widget.Button;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.VisibleForTesting;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.android.material.appbar.MaterialToolbar;
+import com.google.common.util.concurrent.FutureCallback;
+import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.MoreExecutors;
+
+import model.UriStringConverters;
+import presenter.NoteManager;
 import presenter.digitalink.StrokeManager;
 import view.DrawingView;
 import view.StatusTextView;
-
 
 public class NoteActivity extends AppCompatActivity {
     private static final String TAG = "NoteActivity";
     @VisibleForTesting
     final StrokeManager strokeManager = StrokeManager.getInstance();
+    DrawingView drawingView;
+
+    private Uri fileUri;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        String intentMessage = getIntent().getStringExtra("FileUri");
+        fileUri = UriStringConverters.uriFromString(intentMessage);
+        String fileTitle = getIntent().getStringExtra("Title");
+
+        Log.d(TAG + "/intent", "FileUri: " + fileUri);
+
 //        EdgeToEdge.enable(this);
         setContentView(R.layout.activity_note);
 
-        DrawingView drawingView = findViewById(R.id.drawing_view);
+        drawingView = findViewById(R.id.drawing_view_activity_note);
+        drawingView.setFileUri(fileUri);
 
-        StatusTextView statusTextView = new StatusTextView(findViewById(R.id.note_layout));
+        StatusTextView statusTextView = new StatusTextView(findViewById(R.id.coordinator_layout_activity_note));
 
-        drawingView.setStrokeManager(strokeManager);
         statusTextView.setStrokeManager(strokeManager);
-
         strokeManager.setStatusChangedListener(statusTextView);
         strokeManager.setContentChangedListener(drawingView);
-
         strokeManager.setActiveModel();
-
-//        strokeManager.setDownloadedModelsChangedListener(this);
-
-//        strokeManager.setClearCurrentInkAfterRecognition(true);
-//        strokeManager.setTriggerRecognitionAfterInput(false);
-
-//        languageAdapter = populateLanguageAdapter();
-//        languageAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-
-//        languageSpinner.setAdapter(languageAdapter);
-//        strokeManager.refreshDownloadedModelsStatus();
-
-//        languageSpinner.setOnItemSelectedListener(
-//                new OnItemSelectedListener() {
-//                    @Override
-//                    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-//                        String languageCode =
-//                                ((ModelLanguageContainer) parent.getAdapter().getItem(position)).getLanguageTag();
-//                        if (languageCode == null) {
-//                            return;
-//                        }
-//                        Log.i(TAG, "Selected language: " + languageCode);
-//                        strokeManager.setActiveModel(languageCode);
-//                    }
-//
-//                    @Override
-//                    public void onNothingSelected(AdapterView<?> parent) {
-//                        Log.i(TAG, "No language selected");
-//                    }
-//                });
-
         strokeManager.reset();
+
+        drawingView.setStrokeManager(strokeManager);
+
+        MaterialToolbar appBar = findViewById(R.id.top_app_bar_activity_note);
+        appBar.setTitle(fileTitle);
+        appBar.setNavigationOnClickListener(
+                v -> {
+                    Intent intent = new Intent(NoteActivity.this, FolderActivity.class);
+                    startActivity(intent);
+                }
+        );
+
     }
 
-//    private static class ModelLanguageContainer implements Comparable<ModelLanguageContainer> {
-//        private final String label;
-//        @Nullable
-//        private final String languageTag;
-//        private boolean downloaded;
-//
-//        private ModelLanguageContainer(String label, @Nullable String languageTag) {
-//            this.label = label;
-//            this.languageTag = languageTag;
-//        }
-//
-//        /**
-//         * Populates and returns a real model identifier, with label, language tag and downloaded
-//         * status.
-//         */
-//        public static ModelLanguageContainer createModelContainer(String label, String languageTag) {
-//            // Offset the actual language labels for better readability
-//            return new ModelLanguageContainer(label, languageTag);
-//        }
-//
-//        /**
-//         * Populates and returns a label only, without a language tag.
-//         */
-//        public static ModelLanguageContainer createLabelOnly(String label) {
-//            return new ModelLanguageContainer(label, null);
-//        }
-//
-//        @Nullable
-//        public String getLanguageTag() {
-//            return languageTag;
-//        }
-//
-////        public void setDownloaded(boolean downloaded) {
-////            this.downloaded = downloaded;
-////        }
-//
-//        @NonNull
-//        @Override
-//        public String toString() {
-//            if (languageTag == null) {
-//                return label;
-//            } else if (downloaded) {
-//                return "   [D] " + label;
-//            } else {
-//                return "   " + label;
-//            }
-//        }
-//
-//        @Override
-//        public int compareTo(ModelLanguageContainer o) {
-//            return label.compareTo(o.label);
-//        }
-//    }
-
-//    public void downloadClick(View v) {
-//        strokeManager.downloadModel();
-//    }
 
     public void recognizeClick(View v) {
         strokeManager.recognize();
-    }
-
-    public void clearClick(View v) {
-        strokeManager.reset();
-        DrawingView drawingView = findViewById(R.id.drawing_view);
         drawingView.clear();
     }
 
     @Override
     protected void onStart() {
         super.onStart();
-        DrawingView view = findViewById(R.id.drawing_view);
         strokeManager.setStatus("Ready");
 
-        String words = """
-                She walks in beauty, like the night
-                Of cloudless climes and starry skies;
-                And all that’s best of dark and bright
-                Meet in her aspect and her eyes;
-                Thus mellowed to that tender light
-                Which heaven to gaudy day denies.
+        Futures.addCallback(
+                NoteManager.getInstance().readNote(fileUri),
+                new FutureCallback<>() {
+                    @Override
+                    public void onSuccess(String result) {
+                        String content = result == null ? "" : result;
+                        drawingView.setText(content);
+                    }
 
-                One shade the more, one ray the less,
-                Had half impaired the nameless grace
-                Which waves in every raven tress,
-                Or softly lightens o’er her face;
-                Where thoughts serenely sweet express,
-                How pure, how dear their dwelling-place.
-
-                And on that cheek, and o’er that brow,
-                So soft, so calm, yet eloquent,
-                The smiles that win, the tints that glow,
-                But tell of days in goodness spent,
-                A mind at peace with all below,
-                A heart whose love is innocent!
-                """;
-
-        view.setText(words);
+                    @Override
+                    public void onFailure(@NonNull Throwable t) {
+                        Log.e(TAG, "Error: Can Not Read Note" + t.getMessage());
+                    }
+                },
+                MoreExecutors.directExecutor()
+        );
     }
 
 }

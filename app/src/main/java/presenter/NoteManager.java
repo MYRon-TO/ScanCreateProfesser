@@ -12,9 +12,11 @@ import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.MoreExecutors;
 
+import java.util.ArrayList;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 
+import model.UriStringConverters;
 import model.database.DaoNote;
 import model.database.DataBaseMain;
 import model.database.DataEntityNote;
@@ -81,7 +83,7 @@ public class NoteManager {
                 Log.d("NoteManager/FileUri", "File URI: " + fileUri.toString());
 
                 // Add note to database
-                daoNote.insertNotes(new DataEntityNote(fileUri));
+                daoNote.insertNotes(new DataEntityNote(fileUri, fileName));
 
                 return fileUri;
             } catch (AssertionError | Exception e) {
@@ -111,6 +113,24 @@ public class NoteManager {
         return Futures.submit(task, MoreExecutors.directExecutor());
     }
 
+    public ListenableFuture<String> previewNote(Uri fileUri) {
+        Callable<String> task = () -> {
+
+//            DocumentFile file = DocumentFile.fromTreeUri(context, fileUri);
+            DocumentFile file = DocumentFile.fromSingleUri(context, fileUri);
+
+            try {
+                assert file != null;
+                ListenableFuture<String> result = FileManager.preview(file.getUri(), context, 5);
+                return result.get();
+            } catch (AssertionError | Exception e) {
+                Log.e("NoteManager", "Error reading note: " + e.getMessage());
+                return "";
+            }
+        };
+        return Futures.submit(task, MoreExecutors.directExecutor());
+    }
+
     /**
      * <h2>deleteNote</h2>
      * Delete a note from the database and the file system.
@@ -126,7 +146,8 @@ public class NoteManager {
                 file.delete();
 
                 // Add note to database
-                daoNote.deleteNotes(new DataEntityNote(fileUri));
+                DataEntityNote toDelete = daoNote.getNoteByUri(UriStringConverters.stringFromUri(fileUri)).get();
+                daoNote.deleteNotes(toDelete);
                 return true;
             } catch (AssertionError | Exception e) {
                 Log.e("NoteManager", "Error deleting note: " + e.getMessage());
@@ -142,14 +163,16 @@ public class NoteManager {
             DocumentFile file = DocumentFile.fromSingleUri(context, fileUri);
 
             try {
-                assert file != null;
 
+                assert file != null;
                 Log.d("NoteManager/UpdateNote/FileUri", "File URI: " + file.getUri());
+                Log.d("NoteManager/UpdateNote/FileUri", "Content: " + content);
                 ListenableFuture<Boolean> result = FileManager.write(file.getUri(), content, context);
 
                 if(!result.get()){
                     throw new Exception("Error writing to file");
                 }
+
             } catch (AssertionError | Exception e) {
                 Log.e("NoteManager", "Error updating note: " + e.getMessage());
             }
@@ -165,6 +188,15 @@ public class NoteManager {
         };
 
         return Futures.submit(task, MoreExecutors.directExecutor());
+    }
+
+    public ArrayList<DataEntityNote> getAllNotes() {
+        try {
+            return new ArrayList<>(daoNote.getAllNote().get());
+        } catch (ExecutionException | InterruptedException e) {
+            Log.e("NoteManager", "Error getting all notes: " + e.getMessage());
+            return new ArrayList<>();
+        }
     }
 
 }
