@@ -69,6 +69,7 @@
 
         android:contentDescription="@string/scan_description_float_button_activity_note"
 
+
         android:text="@string/scan_text_float_button_activity_note"
         app:icon="@drawable/camera_baseline_camera_alt_24" />
 
