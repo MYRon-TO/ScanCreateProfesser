@@ -185,4 +185,22 @@ public class PreferenceManager {
         }
     }
 
+    public String getPreferenceTextRecognizerModel() {
+        lock.readLock().lock();
+        try {
+            return sharedPreferences.getString("textRecognizerModel", "拉丁语");
+        } finally {
+            lock.readLock().unlock();
+        }
+    }
+
+    public void setPreferenceTextRecognizerModel(String languageTag) {
+        lock.writeLock().lock();
+        try {
+            sharedPreferences.edit().putString("textRecognizerModel", languageTag).apply();
+        } finally {
+            lock.writeLock().unlock();
+        }
+    }
+
 }

@@ -11,6 +11,7 @@ import androidx.annotation.VisibleForTesting;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.material.appbar.MaterialToolbar;
+import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.MoreExecutors;
@@ -64,6 +65,13 @@ public class NoteActivity extends AppCompatActivity {
                 }
         );
 
+        ExtendedFloatingActionButton scanButton = findViewById(R.id.scan_extended_fab_activity_note);
+        scanButton.setOnClickListener(
+                v -> {
+                    startActivity(new Intent(NoteActivity.this, CameraXActivity.class));
+                }
+        );
+
     }
 
 
@@ -71,6 +79,7 @@ public class NoteActivity extends AppCompatActivity {
         strokeManager.recognize();
         drawingView.clear();
     }
+
 
     @Override
     protected void onStart() {

@@ -23,7 +23,7 @@
             android:name=".PreferenceActivity"
             android:exported="false" />
         <activity
-            android:name=".Camera"
+            android:name=".CameraXActivity"
             android:exported="false" />
         <activity
             android:name=".NoteActivity"
