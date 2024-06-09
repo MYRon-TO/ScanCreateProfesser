@@ -4,7 +4,7 @@
 
     <item
         android:id="@+id/preference_menu_app_bar_activity_folder"
-        android:icon="@drawable/temp_go_to_preference_baseline_apps_24"
+        android:icon="@drawable/setting_baseline_settings_24"
         android:title="@string/button_title_preference_menu_app_bar_activity_folder"
         app:showAsAction="ifRoom"
         />

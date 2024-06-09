@@ -1,6 +1,10 @@
 [versions]
 agp = "8.4.1"
+cameraCore = "1.4.0-alpha05"
 core = "1.5.0"
+digitalInkRecognition = "18.1.0"
+faceDetection = "16.1.6"
+guava = "33.2.0-android"
 junit = "4.13.2"
 junitVersion = "1.1.5"
 espressoCore = "3.5.1"
@@ -8,11 +12,20 @@ appcompat = "1.6.1"
 material = "1.12.0"
 activity = "1.9.0"
 constraintlayout = "2.1.4"
+playServicesMlkitDocumentScanner = "16.0.0-beta1"
+preferenceVersion = "1.1.1"
 roomRuntime = "2.6.1"
 preference = "1.2.1"
 
 [libraries]
+camera-camera2 = { module = "androidx.camera:camera-camera2", version.ref = "cameraCore" }
+camera-core = { module = "androidx.camera:camera-core", version.ref = "cameraCore" }
+camera-lifecycle = { module = "androidx.camera:camera-lifecycle", version.ref = "cameraCore" }
+camera-view = { module = "androidx.camera:camera-view", version.ref = "cameraCore" }
 core = { module = "androidx.test:core", version.ref = "core" }
+digital-ink-recognition = { module = "com.google.mlkit:digital-ink-recognition", version.ref = "digitalInkRecognition" }
+face-detection = { module = "com.google.mlkit:face-detection", version.ref = "faceDetection" }
+guava = { module = "com.google.guava:guava", version.ref = "guava" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 ext-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
 espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
@@ -20,6 +33,9 @@ appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "a
 material = { group = "com.google.android.material", name = "material", version.ref = "material" }
 activity = { group = "androidx.activity", name = "activity", version.ref = "activity" }
 constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "constraintlayout" }
+play-services-mlkit-document-scanner = { module = "com.google.android.gms:play-services-mlkit-document-scanner", version.ref = "playServicesMlkitDocumentScanner" }
+preference-v111 = { module = "androidx.preference:preference", version.ref = "preferenceVersion" }
+room-guava = { module = "androidx.room:room-guava", version.ref = "roomRuntime" }
 room-runtime = { module = "androidx.room:room-runtime", version.ref = "roomRuntime" }
 preference = { group = "androidx.preference", name = "preference", version.ref = "preference" }
 

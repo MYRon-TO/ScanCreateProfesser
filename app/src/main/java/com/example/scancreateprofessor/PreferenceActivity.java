@@ -22,7 +22,6 @@ public class PreferenceActivity extends AppCompatActivity {
                 v -> {
                     Intent intent = new Intent(PreferenceActivity.this, FolderActivity.class);
                     startActivity(intent);
-
                 }
         );
 

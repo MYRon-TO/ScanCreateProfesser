@@ -2,24 +2,30 @@
     xmlns:android="http://schemas.android.com/apk/res/android">
 
 
-    <PreferenceCategory android:title="Theme">
+    <PreferenceCategory android:title="@string/theme_title_preference_category">
 
         <SwitchPreferenceCompat
             android:key="set_dark_mode"
-            android:summary="Set Dark mode"
-            android:title="Dark Theme" />
+            android:summary="@string/dark_mode_summary_switch_preference"
+            android:title="@string/dark_mode_title_switch_preference" />
 
     </PreferenceCategory>
 
-    <PreferenceCategory android:title="Recognize">
+    <PreferenceCategory android:title="@string/recognize_title_preference_category">
 
         <ListPreference
             android:defaultValue="en-US"
 
             android:key="language_tag"
-            android:summary="Choose the language"
-            android:title="Recognition Language"
+            android:summary="@string/language_tag_summary_list_preference"
+            android:title="@string/language_tag_title_list_preference"
             />
+
+<!--        <Preference-->
+<!--            android:key="recognize"-->
+<!--            android:summary="TEST"-->
+<!--            android:title="Change Dir" />-->
+<!--            />-->
 
 <!--        <CheckBoxPreference-->
 <!--            android:key="checkbox_preference"-->

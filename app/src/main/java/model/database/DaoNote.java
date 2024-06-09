@@ -1,7 +1,5 @@
 package model.database;
 
-import android.net.Uri;
-
 import androidx.room.Dao;
 import androidx.room.Delete;
 import androidx.room.Insert;

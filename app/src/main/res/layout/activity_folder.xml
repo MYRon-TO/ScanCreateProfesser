@@ -10,16 +10,6 @@
         android:layout_height="wrap_content"
         app:liftOnScroll="true">
 
-<!--        <LinearLayout-->
-<!--            android:layout_width="match_parent"-->
-<!--            android:layout_height="wrap_content">-->
-
-<!--            <com.google.android.material.search.SearchBar-->
-<!--                android:layout_width="match_parent"-->
-<!--                android:layout_height="wrap_content" />-->
-
-<!--        </LinearLayout>-->
-
         <com.google.android.material.appbar.MaterialToolbar
             android:id="@+id/top_app_bar_activity_folder"
             android:layout_width="match_parent"

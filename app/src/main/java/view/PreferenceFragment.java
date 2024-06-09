@@ -3,11 +3,9 @@ package view;
 import android.os.Bundle;
 import android.util.Log;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.preference.ListPreference;
-import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.SwitchPreferenceCompat;
 
@@ -38,6 +36,7 @@ public class PreferenceFragment extends PreferenceFragmentCompat {
     @Override
     public void onCreatePreferences(@Nullable Bundle savedInstanceState, @Nullable String rootKey) {
         setPreferencesFromResource(R.xml.preference, rootKey);
+
         // * Theme
         SwitchPreferenceCompat darkModeSwitch = findPreference("set_dark_mode");
         PreferenceManager.getInstance().getPreferenceIsDarkMode();
@@ -83,22 +82,19 @@ public class PreferenceFragment extends PreferenceFragmentCompat {
         languageTagList.setEntries(entries.toArray(new String[0]));
         languageTagList.setEntryValues(entries.toArray(new String[0]));
 
-        languageTagList.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
-            @Override
-            public boolean onPreferenceChange(@NonNull Preference preference, Object newValue) {
-                String languageTag = (String) newValue;
-                if (languageTag == null) {
-                    return false;
-                }
-                Log.i(TAG, "Selected language: " + languageTag);
-
-                PreferenceManager.getInstance().setPreferenceDigitalInkRecognitionModel(languageTag);
-                StrokeManager.getInstance().setActiveModel(languageTag);
-
-                StrokeManager.getInstance().downloadModel();
-
-                return true;
+        languageTagList.setOnPreferenceChangeListener((preference, newValue) -> {
+            String languageTag = (String) newValue;
+            if (languageTag == null) {
+                return false;
             }
+            Log.i(TAG, "Selected language: " + languageTag);
+
+            PreferenceManager.getInstance().setPreferenceDigitalInkRecognitionModel(languageTag);
+            StrokeManager.getInstance().setActiveModel(languageTag);
+
+            StrokeManager.getInstance().downloadModel();
+
+            return true;
         });
     }
 

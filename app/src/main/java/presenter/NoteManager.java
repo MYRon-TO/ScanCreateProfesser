@@ -29,6 +29,12 @@ public class NoteManager {
 
     private final Context context;
 
+    /**
+     * <h2>getInstance</h2>
+     * Get the instance of the NoteManager.
+     * @throws IllegalStateException If the NoteManager has not been initialized.
+     * @see #init(Context)
+     */
     public static NoteManager getInstance() {
         if (instance == null) {
             throw new IllegalStateException("NoteManager is not initialized");
@@ -36,13 +42,12 @@ public class NoteManager {
         return instance;
     }
 
-    public static NoteManager init(Context context) {
+    public static void init(Context context) {
         if (instance == null) {
             synchronized (NoteManager.class) {
                 instance = new NoteManager(context);
             }
         }
-        return instance;
     }
 
     // Database
@@ -95,6 +100,12 @@ public class NoteManager {
         return Futures.submit(task, MoreExecutors.directExecutor());
     }
 
+    /**
+     * <h2>readNote</h2>
+     * Read a note from the file system.
+     * @param fileUri The URI of the note to read.
+     * @return A future that will return the content of the note.
+     */
     public ListenableFuture<String> readNote(Uri fileUri) {
         Callable<String> task = () -> {
 
@@ -113,7 +124,23 @@ public class NoteManager {
         return Futures.submit(task, MoreExecutors.directExecutor());
     }
 
+    /**
+     * <h2>previewNote</h2>
+     * Preview a note from the file system.
+     * @param fileUri The URI of the note to read.
+     * @see #previewNote(Uri, int)
+     */
     public ListenableFuture<String> previewNote(Uri fileUri) {
+        return previewNote(fileUri,5);
+    }
+
+    /**
+     * <h2>previewNote</h2>
+     * Preview a note from the file system.
+     * @param fileUri The URI of the note to read.
+     * @param numToPreview The number of lines to preview.
+     */
+    public ListenableFuture<String> previewNote(Uri fileUri, int numToPreview){
         Callable<String> task = () -> {
 
 //            DocumentFile file = DocumentFile.fromTreeUri(context, fileUri);
@@ -121,7 +148,7 @@ public class NoteManager {
 
             try {
                 assert file != null;
-                ListenableFuture<String> result = FileManager.preview(file.getUri(), context, 5);
+                ListenableFuture<String> result = FileManager.preview(file.getUri(), context, numToPreview);
                 return result.get();
             } catch (AssertionError | Exception e) {
                 Log.e("NoteManager", "Error reading note: " + e.getMessage());
@@ -157,6 +184,12 @@ public class NoteManager {
         return Futures.submit(task, MoreExecutors.directExecutor());
     }
 
+    /**
+     * <h2>updateNote</h2>
+     * Update a note in the file system.
+     * @param fileUri The URI of the note to update.
+     * @param content The new content of the note.
+     */
     public ListenableFuture<Void> updateNote(Uri fileUri, String content) {
         Callable<Void> task = () -> {
 //            DocumentFile file = DocumentFile.fromTreeUri(context, fileUri);
@@ -181,6 +214,11 @@ public class NoteManager {
         return Futures.submit(task, MoreExecutors.directExecutor());
     }
 
+    /**
+     * <h2>clearDatabase</h2>
+     * <b>Just For Test DataBase</b>
+     * Clear all notes from the database.
+     */
     public ListenableFuture<Void> clearDatabase() {
         Callable<Void> task =  () -> {
             db.clearAllTables();
@@ -190,6 +228,9 @@ public class NoteManager {
         return Futures.submit(task, MoreExecutors.directExecutor());
     }
 
+    /**
+     * <h2>getAllNotes</h2>
+     */
     public ArrayList<DataEntityNote> getAllNotes() {
         try {
             return new ArrayList<>(daoNote.getAllNote().get());

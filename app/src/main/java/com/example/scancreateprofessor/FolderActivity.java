@@ -31,7 +31,6 @@ import view.folderrecycleview.FolderNoteCardElement;
 public class FolderActivity extends AppCompatActivity implements AddNoteDialog.AddNoteDialogListener {
     private final static String TAG = "FolderActivity";
     private final PreferenceManager preference = PreferenceManager.getInstance();
-
     private final ActivityResultLauncher<Intent> permissionActivityResultLauncher = registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(),
             result -> {

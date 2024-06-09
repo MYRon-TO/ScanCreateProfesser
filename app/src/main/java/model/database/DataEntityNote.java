@@ -1,25 +1,16 @@
 package model.database;
 
 import android.net.Uri;
-import android.util.Log;
 
 import androidx.annotation.NonNull;
-import androidx.documentfile.provider.DocumentFile;
-import androidx.room.AutoMigration;
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 import androidx.room.TypeConverter;
 import androidx.room.TypeConverters;
 
-import com.google.common.util.concurrent.Futures;
-import com.google.common.util.concurrent.ListenableFuture;
-import com.google.common.util.concurrent.MoreExecutors;
-
 import java.time.OffsetDateTime;
-import java.util.concurrent.Callable;
 
-import model.filemanager.FileManager;
 
 @Entity(tableName = "note")
 @TypeConverters(Converters.class)
