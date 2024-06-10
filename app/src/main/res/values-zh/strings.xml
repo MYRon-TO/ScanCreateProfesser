@@ -16,12 +16,14 @@
 
         <string name="title_app_bar_folder_app_bar">笔记</string>
         <string name="button_title_preference_menu_app_bar_activity_folder">设置偏好</string>
-        <string name="language_tag_summary_list_preference">选择语言</string>
-        <string name="language_tag_title_list_preference">识别语言</string>
         <string name="dark_mode_summary_switch_preference">设置暗模式</string>
         <string name="dark_mode_title_switch_preference">夜晚主题</string>
         <string name="theme_title_preference_category">主题</string>
         <string name="recognize_title_preference_category">识别</string>
         <string name="button_take_photo_camera_x_activity">拍照</string>
+        <string name="ink_language_tag_summary_list_preference">选择手写识别的语言</string>
+        <string name="ink_language_tag_title_list_preference">手写识别语言</string>
+        <string name="scanner_language_tag_title_list_preference">扫描识别的语言</string>
+        <string name="scanner_language_tag_summary_list_preference">选择扫描识别的语言</string>
     </resources>
 
