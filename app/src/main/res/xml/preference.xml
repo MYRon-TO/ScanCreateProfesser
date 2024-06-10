@@ -1,4 +1,4 @@
-<PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto"
+<PreferenceScreen
     xmlns:android="http://schemas.android.com/apk/res/android">
 
 
@@ -16,32 +16,18 @@
         <ListPreference
             android:defaultValue="en-US"
 
-            android:key="language_tag"
-            android:summary="@string/language_tag_summary_list_preference"
-            android:title="@string/language_tag_title_list_preference"
+            android:key="ink_language_tag"
+            android:title="@string/ink_language_tag_title_list_preference"
+            android:summary="@string/ink_language_tag_summary_list_preference"
             />
 
-<!--        <Preference-->
-<!--            android:key="recognize"-->
-<!--            android:summary="TEST"-->
-<!--            android:title="Change Dir" />-->
-<!--            />-->
+        <ListPreference
+            android:defaultValue="Latin"
 
-<!--        <CheckBoxPreference-->
-<!--            android:key="checkbox_preference"-->
-<!--            android:summary="This is a checkbox preference"-->
-<!--            android:title="Checkbox Preference" />-->
-
-<!--        <EditTextPreference-->
-<!--            android:inputType="text"-->
-<!--            android:key="edittext_preference"-->
-<!--            android:summary="This is an EditText preference"-->
-<!--            android:title="EditText Preference" />-->
-
-<!--        <SwitchPreferenceCompat-->
-<!--            android:key="switch_preference"-->
-<!--            android:summary="This is a switch preference"-->
-<!--            android:title="Switch Preference" />-->
+            android:key="scanner_language_tag"
+            android:title="@string/scanner_language_tag_title_list_preference"
+            android:summary="@string/scanner_language_tag_summary_list_preference"
+            />
 
     </PreferenceCategory>
 

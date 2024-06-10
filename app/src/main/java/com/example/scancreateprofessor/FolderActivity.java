@@ -13,6 +13,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.StaggeredGridLayoutManager;
 
 import com.google.android.material.appbar.MaterialToolbar;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
@@ -65,16 +66,25 @@ public class FolderActivity extends AppCompatActivity implements AddNoteDialog.A
                 }
         );
 
-//        NoteManager.getInstance().clearDatabase();
-
         try {
             if (preference.getPreferenceIsFirstTime()) {
-                Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
-                intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-                intent.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+                new MaterialAlertDialogBuilder(this)
+                        .setTitle("Several Step to Start")
+                        .setMessage("Select a folder to save your note")
+                        .setPositiveButton(
+                                "OK",
+                                (dialog, which) -> {
+                                    Log.d("MainActivity", "OK");
 
-                permissionActivityResultLauncher.launch(intent);
-                preference.setPreferenceIsFirstTime(false);
+                                    Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
+                                    intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                                    intent.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+
+                                    permissionActivityResultLauncher.launch(intent);
+                                    preference.setPreferenceIsFirstTime(false);
+                                }
+                        )
+                        .show();
             }
         } catch (Exception e) {
             Log.d("MainActivity", "Error: " + e.getMessage());
@@ -123,11 +133,6 @@ public class FolderActivity extends AppCompatActivity implements AddNoteDialog.A
                 Uri uri = data.getNoteFile();
                 noteArray.add(new FolderNoteCardElement(title, content, uri));
             } catch (Exception e) {
-//                    public void clearClick(View v) {
-//                        strokeManager.reset();
-//                        DrawingView drawingView = findViewById(R.id.drawing_view_activity_note);
-//                        drawingView.clear();
-//                    }
                 Log.e(TAG, "Error: Can Not Preview Note" + e.getMessage());
             }
         }

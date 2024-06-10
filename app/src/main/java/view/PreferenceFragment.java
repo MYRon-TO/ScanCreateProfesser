@@ -14,7 +14,9 @@ import com.google.common.collect.ImmutableMap;
 import com.google.mlkit.vision.digitalink.DigitalInkRecognitionModelIdentifier;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 
 import model.preference.PreferenceManager;
 import presenter.digitalink.StrokeManager;
@@ -41,7 +43,7 @@ public class PreferenceFragment extends PreferenceFragmentCompat {
         SwitchPreferenceCompat darkModeSwitch = findPreference("set_dark_mode");
         PreferenceManager.getInstance().getPreferenceIsDarkMode();
 
-        if (darkModeSwitch == null){
+        if (darkModeSwitch == null) {
             Log.e(TAG, "darkModeSwitch is null");
             throw new RuntimeException("darkModeSwitch is null");
         }
@@ -49,9 +51,9 @@ public class PreferenceFragment extends PreferenceFragmentCompat {
         darkModeSwitch.setOnPreferenceChangeListener(
                 (preference, newValue) -> {
                     boolean isDarkMode = (boolean) newValue;
-                    if(isDarkMode){
+                    if (isDarkMode) {
                         AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
-                    }else {
+                    } else {
                         AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
                     }
                     PreferenceManager.getInstance().setPreferenceIsDarkMode(isDarkMode);
@@ -60,15 +62,18 @@ public class PreferenceFragment extends PreferenceFragmentCompat {
         );
 
         // * Recognize
-        ListPreference languageTagList = findPreference("language_tag");
-        if (languageTagList == null) {
-            Log.e(TAG, "languageTagList is null");
-            throw new RuntimeException("languageTagList is null");
+        // ** ink language tag
+        ListPreference inkLanguageTagList = findPreference("ink_language_tag");
+        if (inkLanguageTagList == null) {
+            Log.e(TAG, "inkLanguageTagList is null");
+            throw new RuntimeException("inkLanguageTagList is null");
         }
-        List<String> entries = new ArrayList<>();
+        List<String> inkEntries = new ArrayList<>();
+        List<String> inkEntriesValues = new ArrayList<>();
 
         for (DigitalInkRecognitionModelIdentifier modelIdentifier :
-                DigitalInkRecognitionModelIdentifier.allModelIdentifiers()) {
+                DigitalInkRecognitionModelIdentifier.allModelIdentifiers()
+        ) {
             if (NON_TEXT_MODELS.containsKey(modelIdentifier.getLanguageTag())) {
                 continue;
             }
@@ -76,26 +81,64 @@ public class PreferenceFragment extends PreferenceFragmentCompat {
                 continue;
             }
 
-            entries.add(modelIdentifier.getLanguageTag());
+            inkEntries.add(
+                    new Locale(modelIdentifier.getLanguageSubtag()).getDisplayName() +
+                            "(" +
+                            modelIdentifier.getLanguageTag() +
+                            ")"
+            );
+            inkEntriesValues.add(modelIdentifier.getLanguageTag());
+
         }
 
-        languageTagList.setEntries(entries.toArray(new String[0]));
-        languageTagList.setEntryValues(entries.toArray(new String[0]));
+        inkLanguageTagList.setEntries(inkEntries.toArray(new String[0]));
+        inkLanguageTagList.setEntryValues(inkEntriesValues.toArray(new String[0]));
 
-        languageTagList.setOnPreferenceChangeListener((preference, newValue) -> {
-            String languageTag = (String) newValue;
-            if (languageTag == null) {
-                return false;
-            }
-            Log.i(TAG, "Selected language: " + languageTag);
+        inkLanguageTagList.setOnPreferenceChangeListener(
+                (preference, newValue) -> {
+                    String languageTag = (String) newValue;
+                    if (languageTag == null) {
+                        return false;
+                    }
+                    Log.i(TAG, "Selected language: " + languageTag);
 
-            PreferenceManager.getInstance().setPreferenceDigitalInkRecognitionModel(languageTag);
-            StrokeManager.getInstance().setActiveModel(languageTag);
+                    PreferenceManager.getInstance().setPreferenceDigitalInkRecognitionModel(languageTag);
+                    StrokeManager.getInstance().setActiveModel(languageTag);
 
-            StrokeManager.getInstance().downloadModel();
+                    StrokeManager.getInstance().downloadModel();
 
-            return true;
-        });
+                    return true;
+                }
+        );
+
+        // ** Scanner language tag
+        ListPreference scannerLanguageTagList = findPreference("scanner_language_tag");
+        if (scannerLanguageTagList == null) {
+            Log.e(TAG, "ScannerLanguageTagList is null");
+            throw new RuntimeException("ScannerLanguageTagList is null");
+        }
+        List<String> scannerEntries = new ArrayList<>(
+                Arrays.asList(getResources().getStringArray(R.array.scanner_model_list))
+        );
+        List<String> scannerEntryValue = new ArrayList<>(
+                Arrays.asList(getResources().getStringArray(R.array.scanner_model_list_value))
+        );
+        scannerLanguageTagList.setEntries(scannerEntries.toArray(new String[0]));
+        scannerLanguageTagList.setEntryValues(scannerEntryValue.toArray(new String[0]));
+
+        scannerLanguageTagList.setOnPreferenceChangeListener(
+                (preference, newValue) -> {
+                    String languageTag = (String) newValue;
+                    if (languageTag == null) {
+                        return false;
+                    }
+                    Log.i(TAG, "Selected language: " + languageTag);
+
+                    PreferenceManager.getInstance().setPreferenceTextRecognizerModel(languageTag);
+
+                    return true;
+                }
+        );
     }
 
 }

@@ -14,10 +14,12 @@
     <string name="sample_title_text_field_add_new_note_dialog">New_Note</string>
     <string name="title_app_bar_folder_app_bar">Note</string>
     <string name="button_title_preference_menu_app_bar_activity_folder">goToPreference</string>
-    <string name="language_tag_summary_list_preference">Choose the language</string>
-    <string name="language_tag_title_list_preference">Recognition Language</string>
+    <string name="ink_language_tag_summary_list_preference">Choose the language for the Ink Recognizer</string>
+    <string name="ink_language_tag_title_list_preference">Recognition Language</string>
     <string name="dark_mode_summary_switch_preference">Set Dark mode</string>
     <string name="dark_mode_title_switch_preference">Dark Theme</string>
     <string name="theme_title_preference_category">Theme</string>
     <string name="recognize_title_preference_category">Recognize</string>
+    <string name="scanner_language_tag_title_list_preference">Scanner Language</string>
+    <string name="scanner_language_tag_summary_list_preference">Choose the language for the scanner</string>
 </resources>
