@@ -1,0 +1,27 @@
+
+
+    <resources>
+        <string name="app_name">墨影通学</string>
+        <string name="standard_icon_btn_desc">概览</string>
+        <string name="filled_icon_btn_desc">相机</string>
+        <string name="preference_layout_appbar_title">偏好</string>
+        <string name="sample_title_folder_note_card_row_item">标题</string>
+        <string name="sample_content_folder_note_card_row_item">支持性文本</string>
+        <string name="add_new_note_description_float_button_activity_folder">添加新笔记</string>
+        <string name="add_new_note_text_float_button_activity_folder">添加</string>
+        <string name="scan_text_float_button_activity_note">扫描</string>
+        <string name="scan_description_float_button_activity_note">待办</string>
+        <string name="recognize_description_float_button_activity_note">待办</string>
+        <string name="label_text_field_add_new_note_dialog">标题</string>
+
+        <string name="title_app_bar_folder_app_bar">笔记</string>
+        <string name="button_title_preference_menu_app_bar_activity_folder">设置偏好</string>
+        <string name="language_tag_summary_list_preference">选择语言</string>
+        <string name="language_tag_title_list_preference">识别语言</string>
+        <string name="dark_mode_summary_switch_preference">设置暗模式</string>
+        <string name="dark_mode_title_switch_preference">夜晚主题</string>
+        <string name="theme_title_preference_category">主题</string>
+        <string name="recognize_title_preference_category">识别</string>
+        <string name="button_take_photo_camera_x_activity">拍照</string>
+    </resources>
+
