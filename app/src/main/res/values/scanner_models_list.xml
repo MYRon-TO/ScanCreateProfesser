@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="scanner_model_list">
+        <item>Latin</item>
+        <item>Chinese</item>
+        <item>Devanagari</item>
+        <item>Japanese</item>
+        <item>Korean</item>
+    </string-array>
+
+<!--    Do not add i18n for scanner_model_list_value !!!-->
+    <string-array name="scanner_model_list_value">
+        <item>Latin</item>
+        <item>Chinese</item>
+        <item>Devanagari</item>
+        <item>Japanese</item>
+        <item>Korean</item>
+    </string-array>
+</resources>

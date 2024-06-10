@@ -24,11 +24,11 @@ import model.preference.PreferenceManager;
 
 public class TextAnalysis {
 
-    private static final String TEXT_RECOGNITION_LATIN = "拉丁语";
-    private static final String TEXT_RECOGNITION_CHINESE = "中文";
-    private static final String TEXT_RECOGNITION_DEVANAGARI = "梵文";
-    private static final String TEXT_RECOGNITION_JAPANESE = "日文";
-    private static final String TEXT_RECOGNITION_KOREAN = "韩文";
+    private static final String TEXT_RECOGNITION_LATIN = "Latin";
+    private static final String TEXT_RECOGNITION_CHINESE = "Chinese";
+    private static final String TEXT_RECOGNITION_DEVANAGARI = "Devanagari";
+    private static final String TEXT_RECOGNITION_JAPANESE = "Japanese";
+    private static final String TEXT_RECOGNITION_KOREAN = "Korean";
     public TextRecognizer recognizer;
     public String text;
 

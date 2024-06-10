@@ -48,7 +48,7 @@ public class GestureHandler {
             editableText.append(ri.text);
             Log.d(TAG, "write");
         }
-
+        hasCursor = false;
     }
 
     public void addCursor(RecognitionTask.RecognizedInk ri) {

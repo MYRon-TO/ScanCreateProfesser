@@ -115,7 +115,7 @@ public class NoteActivity extends AppCompatActivity {
                                     }
                                 }
                         )
-                        .setNeutralButton(
+                        .setNegativeButton(
                                 "Cancel",
                                 (dialog, which) -> dialog.dismiss()
                         )
@@ -189,13 +189,13 @@ public class NoteActivity extends AppCompatActivity {
 
     private void goCamera(){
         checkPermission(Permission.Camera);
+    }
 
+    private void goCameraIntent() {
         Intent intent = new Intent(NoteActivity.this, CameraXActivity.class);
-
         // *** hang on the note activity
         intent.putExtra("FileUri", UriStringConverters.stringFromUri(fileUri));
         intent.putExtra("Title", fileTitle);
-
         startActivity(intent);
     }
 
@@ -204,7 +204,6 @@ public class NoteActivity extends AppCompatActivity {
 
         Intent intent1 = new Intent(Intent.ACTION_GET_CONTENT);
         intent1.setType("image/*");
-
         goAlbumResultLauncher.launch(intent1);
     }
 
@@ -217,15 +216,19 @@ public class NoteActivity extends AppCompatActivity {
         switch (permission){
             case Camera -> {
                 if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+                    Log.e(TAG,"NO CAMERA PERMISSION");
                     ActivityCompat.requestPermissions(
                             this,
                             new String[]{android.Manifest.permission.CAMERA},
                             PERMISSION_REQUEST_CODE
                     );
+                }else {
+                    goCameraIntent();
                 }
             }
             case ReadExternalStorage -> {
                 if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                    Log.e(TAG,"NO ReadExternal Storage PERMISSION");
                     ActivityCompat.requestPermissions(
                             this,
                             new String[]{android.Manifest.permission.READ_EXTERNAL_STORAGE},
