@@ -56,7 +56,7 @@ public class FolderActivity extends AppCompatActivity implements AddNoteDialog.A
 
         MaterialToolbar appBar = findViewById(R.id.top_app_bar_activity_folder);
         appBar.setOnMenuItemClickListener(
-                menuItem ->{
+                menuItem -> {
                     Log.d(TAG + "/appBar", String.valueOf(menuItem.getItemId()));
                     if (menuItem.getItemId() == R.id.preference_menu_app_bar_activity_folder) {
                         startActivity(new Intent(this, PreferenceActivity.class));
@@ -123,12 +123,12 @@ public class FolderActivity extends AppCompatActivity implements AddNoteDialog.A
                 Uri uri = data.getNoteFile();
                 noteArray.add(new FolderNoteCardElement(title, content, uri));
             } catch (Exception e) {
-   //    public void clearClick(View v) {
-//        strokeManager.reset();
-//        DrawingView drawingView = findViewById(R.id.drawing_view_activity_note);
-//        drawingView.clear();
-//    }
-             Log.e(TAG, "Error: Can Not Preview Note" + e.getMessage());
+//                    public void clearClick(View v) {
+//                        strokeManager.reset();
+//                        DrawingView drawingView = findViewById(R.id.drawing_view_activity_note);
+//                        drawingView.clear();
+//                    }
+                Log.e(TAG, "Error: Can Not Preview Note" + e.getMessage());
             }
         }
         return noteArray;
