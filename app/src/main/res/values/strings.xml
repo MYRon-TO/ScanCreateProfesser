@@ -20,4 +20,5 @@
     <string name="dark_mode_title_switch_preference">Dark Theme</string>
     <string name="theme_title_preference_category">Theme</string>
     <string name="recognize_title_preference_category">Recognize</string>
+    <string name="button_take_photo_camera_x_activity">takePhoto</string>
 </resources>

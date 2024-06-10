@@ -1,21 +1,34 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".CameraXActivity">
+    tools:context=".CameraXActivity"
+    >
+
+
     <androidx.camera.view.PreviewView
         android:id="@+id/main_preview"
         android:layout_width="match_parent"
-        android:layout_height="500dp"
-        tools:ignore="MissingConstraints" />
-    <Button
-        android:id="@+id/take_photo"
-        android:text="拍照"
-        android:layout_width="100dp"
-        android:layout_height="100dp"
+        android:layout_height="match_parent"
         tools:ignore="MissingConstraints" />
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+    <com.google.android.material.appbar.MaterialToolbar
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@android:color/transparent"
+        android:minHeight="?attr/actionBarSize"
+        app:navigationIcon="@drawable/camerax_baseline_arrow_back_24" />
+
+    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+        android:id="@+id/take_photo"
+        android:layout_gravity="bottom|center_horizontal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        android:text="@string/button_take_photo_camera_x_activity"
+        app:icon="@drawable/camera_baseline_camera_alt_24" />
+
+</FrameLayout>

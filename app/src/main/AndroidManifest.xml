@@ -23,13 +23,14 @@
             android:name=".PreferenceActivity"
             android:exported="false" />
         <activity
-            android:name=".CameraXActivity"
+            android:name=".FolderActivity"
+
             android:exported="false" />
         <activity
             android:name=".NoteActivity"
             android:exported="false" />
         <activity
-            android:name=".FolderActivity"
+            android:name=".CameraXActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
