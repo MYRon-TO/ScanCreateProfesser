@@ -2,19 +2,11 @@ package presenter;
 
 import static androidx.test.core.app.ApplicationProvider.getApplicationContext;
 
-import android.graphics.Bitmap;
-import android.media.Image;
+import android.content.Context;
 import android.net.Uri;
 import android.util.Log;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.OptIn;
-import androidx.camera.core.ExperimentalGetImage;
-import androidx.camera.core.ImageProxy;
-
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.mlkit.vision.common.InputImage;
 import com.google.mlkit.vision.text.Text;
@@ -39,7 +31,6 @@ public class TextAnalysis {
     private static final String TEXT_RECOGNITION_KOREAN = "韩文";
     public TextRecognizer recognizer;
     public String text;
-
 
     //创建TextRecognizer的实例
     private void createTextRecognizer(String selectedMode) {
@@ -82,12 +73,13 @@ public class TextAnalysis {
     }
 
     //用imageUri识别文字
-    public Task<Text> imageUriTextAnalyzer(Uri imageUri) throws IOException {
+    public Task<Text> imageUriTextAnalyzer(Uri imageUri, Context context) throws IOException {
         //获取图片
         InputImage image;
         try {
-            image = InputImage.fromFilePath(getApplicationContext(), imageUri);
+            image = InputImage.fromFilePath(context, imageUri);
         } catch (IOException e) {
+            Log.e("图片路径错误", "Can not create InputImage from URI: " + imageUri, e);
             throw new IOException(e);
         }
         return imageTextAnalyzer(image);

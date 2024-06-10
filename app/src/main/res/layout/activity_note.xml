@@ -55,7 +55,6 @@
 
         android:contentDescription="@string/recognize_description_float_button_activity_note"
         app:srcCompat="@drawable/recognize_outline_border_color_24"
-        android:onClick="recognizeClick"
         />
 
 

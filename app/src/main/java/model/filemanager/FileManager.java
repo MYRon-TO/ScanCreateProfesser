@@ -39,7 +39,7 @@ public class FileManager {
      */
     public static ListenableFuture<Boolean> write(Uri uri, String content, Context context) throws IOException {
         Callable<Boolean> task = () -> {
-            OutputStream outputStream = context.getContentResolver().openOutputStream(uri);
+            OutputStream outputStream = context.getContentResolver().openOutputStream(uri,"wt");
             if (outputStream != null) {
                 outputStream.write(content.getBytes());
                 outputStream.close();

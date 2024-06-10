@@ -11,7 +11,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.util.Log;
-import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
@@ -32,13 +31,7 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.common.util.concurrent.ListenableFuture;
-import com.google.mlkit.vision.text.Text;
-
-import model.UriStringConverters;
-import presenter.TextAnalysis;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -47,7 +40,10 @@ import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
 
+import model.UriStringConverters;
+
 public class CameraXActivity extends AppCompatActivity {
+    private final static String TAG = "CameraXActivity";
 
     public ListenableFuture<ProcessCameraProvider> cameraProviderFuture;
     public PreviewView previewView;
@@ -63,56 +59,58 @@ public class CameraXActivity extends AppCompatActivity {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
-        TextAnalysis textAnalysis = new TextAnalysis();
 
         Button takePhoto;
         takePhoto = findViewById(R.id.take_photo);
         previewView = findViewById(R.id.main_preview);
-        takePhoto.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // 拍摄照片
-                imageCapture.takePicture(
-                        ContextCompat.getMainExecutor(CameraXActivity.this),
-                        new ImageCapture.OnImageCapturedCallback() {
-                            @OptIn(markerClass = ExperimentalGetImage.class)
-                            @Override
-                            public void onCaptureSuccess(@NonNull ImageProxy image) {
-                                Image tempImage = image.getImage();
-                                if(tempImage == null){
-                                    throw new RuntimeException("image is null");
+        takePhoto.setOnClickListener(
+                v -> {
+                    // 拍摄照片
+                    imageCapture.takePicture(
+                            ContextCompat.getMainExecutor(CameraXActivity.this),
+                            new ImageCapture.OnImageCapturedCallback() {
+                                @OptIn(markerClass = ExperimentalGetImage.class)
+                                @Override
+                                public void onCaptureSuccess(@NonNull ImageProxy image) {
+                                    Image tempImage = image.getImage();
+                                    if (tempImage == null) {
+                                        throw new RuntimeException("image is null");
+                                    }
+                                    Bitmap bitmap = imageReaderToBitmap(tempImage);
+
+                                    image.close();
+
+                                    try {
+                                        Uri imageUri = saveBitmapToGallery(bitmap);
+
+                                        String fileUri = getIntent().getStringExtra("FileUri");
+                                        String fileTitle = getIntent().getStringExtra("Title");
+
+                                        Intent intent = new Intent(CameraXActivity.this, NoteActivity.class);
+                                        intent.putExtra("ScanResult", UriStringConverters.stringFromUri(imageUri));
+                                        intent.putExtra("FileUri", fileUri);
+                                        intent.putExtra("Title", fileTitle);
+
+                                        Log.i(TAG + "/takePicture", "image uri: " + UriStringConverters.stringFromUri(imageUri));
+                                        Log.i(TAG + "/takePicture", "file uri: " + fileUri);
+                                        Log.i(TAG + "/takePicture", "file title: " + fileTitle);
+
+                                        startActivity(intent);
+                                    } catch (IOException e) {
+                                        Log.e(TAG + "/takePicture", e.toString());
+                                        throw new RuntimeException(e);
+                                    }
+
                                 }
-                                Bitmap bitmap = imageReaderToBitmap(tempImage);
 
-                                image.close();
-
-                                try {
-                                    Uri imageUri = saveBitmapToGallery(bitmap);
-
-//                                    textAnalysis.imageProxyTextAnalyzer(image).addOnSuccessListener(
-//                                            result -> {
-//                                                Log.d("1", result.getText());
-//                                                Toast.makeText(CameraXActivity.this, "保存成功", Toast.LENGTH_SHORT).show();
-//                                            }
-//                                    );
-                                    Intent intent = new Intent(CameraXActivity.this, NoteActivity.class);
-                                    intent.putExtra("imageUri", UriStringConverters.stringFromUri(imageUri));
-                                    startActivity(intent);
-                                } catch (IOException e) {
-                                    throw new RuntimeException(e);
+                                @Override
+                                public void onError(@NonNull ImageCaptureException exception) {
+                                    // 处理错误
+                                    Toast.makeText(CameraXActivity.this, "拍摄失败", Toast.LENGTH_SHORT).show();
                                 }
+                            });
 
-                            }
-
-                            @Override
-                            public void onError(@NonNull ImageCaptureException exception) {
-                                // 处理错误
-                                Toast.makeText(CameraXActivity.this, "拍摄失败", Toast.LENGTH_SHORT).show();
-                            }
-                        });
-
-            }
-        });
+                });
 
         cameraProviderFuture = ProcessCameraProvider.getInstance(this);
         cameraProviderFuture.addListener(() -> {
@@ -166,7 +164,7 @@ public class CameraXActivity extends AppCompatActivity {
         // 插入图片到MediaStore的Images库
         ContentResolver contentResolver = this.getContentResolver();
         Uri imageUri = contentResolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
-        if(imageUri == null){
+        if (imageUri == null) {
             throw new RuntimeException("imageUri is null");
         }
         OutputStream outputStream = contentResolver.openOutputStream(imageUri);

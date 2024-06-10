@@ -64,19 +64,19 @@ dependencies {
     implementation libs.preference.v111
 
     // To recognize Latin script
-    implementation 'com.google.mlkit:text-recognition:16.0.0'
+    implementation libs.text.recognition
 
     // To recognize Chinese script
-    implementation 'com.google.mlkit:text-recognition-chinese:16.0.0'
+    implementation libs.text.recognition.chinese
 
     // To recognize Devanagari script
-    implementation 'com.google.mlkit:text-recognition-devanagari:16.0.0'
+    implementation libs.text.recognition.devanagari
 
     // To recognize Japanese script
-    implementation 'com.google.mlkit:text-recognition-japanese:16.0.0'
+    implementation libs.text.recognition.japanese
 
     // To recognize Korean script
-    implementation 'com.google.mlkit:text-recognition-korean:16.0.0'
+    implementation libs.text.recognition.korean
 
 
 }

@@ -49,7 +49,7 @@ public class RecognitionTask {
     /**
      * Helper class that stores an ink along with the corresponding recognized text.
      */
-    public class RecognizedInk {
+    public static class RecognizedInk {
 
         public enum InkType {
             TEXT,

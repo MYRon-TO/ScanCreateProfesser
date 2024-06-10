@@ -26,71 +26,21 @@ import view.DrawingView;
  */
 public class StrokeManager {
 
-//    private StrokeManager strokeManager;
-    private static volatile StrokeManager instance;
-
-    public static StrokeManager getInstance(){
-        if (instance != null) {
-            return instance;
-        }else{
-            synchronized (StrokeManager.class) {
-                instance = new StrokeManager();
-            }
-        }
-        return instance;
-    }
-
-    public StrokeManager(){
-    }
-
-
-    /**
-     * Interface to register to be notified of changes in the recognized content.
-     */
-    public interface ContentChangedListener {
-
-        /**
-         * This method is called when the recognized content changes.
-         */
-        void onContentChanged();
-    }
-
-    /**
-     * Interface to register to be notified of changes in the status.
-     */
-    public interface StatusChangedListener {
-
-        /**
-         * This method is called when the recognized content changes.
-         */
-        void onStatusChanged();
-    }
-
-    /**
-     * Interface to register to be notified of changes in the downloaded model state.
-     */
-    public interface DownloadedModelsChangedListener {
-
-        /**
-         * This method is called when the downloaded models changes.
-         */
-        void onDownloadedModelsChanged(Set<String> downloadedLanguageTags);
-    }
-
     @VisibleForTesting
     static final long CONVERSION_TIMEOUT_MS = 1000;
     private static final String TAG = "StrokeManager";
     // This is a constant that is used as a message identifier to trigger the timeout.
     private static final int TIMEOUT_TRIGGER = 1;
-    // For handling recognition and model downloading.
-    private RecognitionTask recognitionTask = null;
+    //    private StrokeManager strokeManager;
+    private static volatile StrokeManager instance;
+    // Managing the recognition queue.
+    private final List<RecognitionTask.RecognizedInk> content = new ArrayList<>();
     @VisibleForTesting
     DigitalInkModelManager gestureModelManager = new DigitalInkModelManager();
     @VisibleForTesting
     DigitalInkModelManager writingModelManager = new DigitalInkModelManager();
-
-    // Managing the recognition queue.
-    private final List<RecognitionTask.RecognizedInk> content = new ArrayList<>();
+    // For handling recognition and model downloading.
+    private RecognitionTask recognitionTask = null;
     // Managing ink currently drawn.
     private Ink.Stroke.Builder strokeBuilder = Ink.Stroke.builder();
     private Ink.Builder inkBuilder = Ink.builder();
@@ -101,11 +51,8 @@ public class StrokeManager {
     private StatusChangedListener statusChangedListener = null;
     @Nullable
     private DownloadedModelsChangedListener downloadedModelsChangedListener = null;
-
     private GestureHandler gestureHandler;
-
     private String status = "";
-
     // Handler to handle the UI Timeout.
     // This handler is only used to trigger the UI timeout. Each time a UI interaction happens,
     // the timer is reset by clearing the queue on this handler and sending a new delayed message (in
@@ -124,12 +71,18 @@ public class StrokeManager {
                         // compiling. Returning false indicates that a message wasn't handled.
                         return false;
                     });
+    public StrokeManager() {
+    }
 
-    public void setStatus(String newStatus) {
-        status = newStatus;
-        if (statusChangedListener != null) {
-            statusChangedListener.onStatusChanged();
+    public static StrokeManager getInstance() {
+        if (instance != null) {
+            return instance;
+        } else {
+            synchronized (StrokeManager.class) {
+                instance = new StrokeManager();
+            }
         }
+        return instance;
     }
 
     private void commitResult() {
@@ -225,6 +178,13 @@ public class StrokeManager {
         return status;
     }
 
+    public void setStatus(String newStatus) {
+        status = newStatus;
+        if (statusChangedListener != null) {
+            statusChangedListener.onStatusChanged();
+        }
+    }
+
     public void setActiveModel() {
         setActiveModel(PreferenceManager.getInstance().getPreferenceDigitalInkRecognitionModel());
     }
@@ -254,7 +214,6 @@ public class StrokeManager {
         );
 
     }
-
 
     public void deleteModel() {
         this.deleteSingleModel(gestureModelManager);
@@ -289,15 +248,14 @@ public class StrokeManager {
                         });
     }
 
-    // Recognition-related.
-
     private boolean isSetRecognizer() {
         return gestureModelManager.getRecognizer() != null || writingModelManager.getRecognizer() != null;
     }
 
-    /** recognize the ink drawn on the screen. *
+    /**
+     * recognize the ink drawn on the screen. *
      */
-    public void recognize(){
+    public void recognize() {
 
         try {
             recognize(true)
@@ -329,7 +287,7 @@ public class StrokeManager {
                                 reset();
                             }
                     );
-        }catch (Exception e){
+        } catch (Exception e) {
             Log.e(TAG, "recognize: " + e.getMessage());
         }
     }
@@ -362,6 +320,8 @@ public class StrokeManager {
                         });
     }
 
+    // Recognition-related.
+
     public void refreshDownloadedModelsStatus() {
         gestureModelManager
                 .getDownloadedModelLanguages()
@@ -392,6 +352,27 @@ public class StrokeManager {
         switch (ri.type) {
             case Gesture:
                 switch (ri.text) {
+                    case "corner:downleft":
+                        gestureHandler.addCR(ri);
+                        break;
+                    case "circle":
+                        gestureHandler.strong(ri);
+                        break;
+                    case "caret:above":
+                        gestureHandler.addSpace(ri, true);
+                        break;
+                    case "caret:below":
+                        gestureHandler.addSpace(ri, false);
+                        break;
+                    case "verticalbar":
+                        gestureHandler.addCursor(ri);
+                        break;
+                    case "arch:above":
+                        gestureHandler.deleteSpace(ri, true);
+                        break;
+                    case "arch:below":
+                        gestureHandler.deleteSpace(ri, false);
+                        break;
                     case "strike":
                     case "scribble":
                         Log.d(TAG, "delete");
@@ -410,5 +391,38 @@ public class StrokeManager {
                 break;
         }
         reset();
+    }
+
+    /**
+     * Interface to register to be notified of changes in the recognized content.
+     */
+    public interface ContentChangedListener {
+
+        /**
+         * This method is called when the recognized content changes.
+         */
+        void onContentChanged();
+    }
+
+    /**
+     * Interface to register to be notified of changes in the status.
+     */
+    public interface StatusChangedListener {
+
+        /**
+         * This method is called when the recognized content changes.
+         */
+        void onStatusChanged();
+    }
+
+    /**
+     * Interface to register to be notified of changes in the downloaded model state.
+     */
+    public interface DownloadedModelsChangedListener {
+
+        /**
+         * This method is called when the downloaded models changes.
+         */
+        void onDownloadedModelsChanged(Set<String> downloadedLanguageTags);
     }
 }

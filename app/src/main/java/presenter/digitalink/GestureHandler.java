@@ -4,7 +4,6 @@ import android.graphics.Rect;
 import android.text.Editable;
 import android.text.Layout;
 import android.util.Log;
-import android.widget.EditText;
 
 import com.google.mlkit.vision.digitalink.Ink;
 
@@ -19,22 +18,119 @@ public class GestureHandler {
     private static final int MIN_BB_HEIGHT = 10;
     private static final int MAX_BB_WIDTH = 256;
     private static final int MAX_BB_HEIGHT = 256;
+    private final static String cursor = "█";
+    private final DrawingView view;
+    private boolean hasCursor;
 
-    private DrawingView view;
-
-    public GestureHandler(DrawingView view){
+    public GestureHandler(DrawingView view) {
         this.view = view;
-    }
 
-
-    public void writeWord(RecognitionTask.RecognizedInk ri){
         Editable editableText = view.getText();
-        editableText.append(ri.text);
-
-        Log.d(TAG, "write");
+        String editableTextString = editableText.toString();
+        int startPos = editableTextString.indexOf(cursor);
+        hasCursor = startPos != -1;
     }
 
-    public void deleteWord(RecognitionTask.RecognizedInk ri){
+
+    /**
+     * Writes the word that is in the bounding box of the ink
+     *
+     * @param ri the recognized ink
+     */
+    public void writeWord(RecognitionTask.RecognizedInk ri) {
+        Editable editableText = view.getText();
+        if (hasCursor) {
+            String textToProcessed = editableText.toString();
+            String processedText = textToProcessed.replaceAll(cursor, ri.text);
+            editableText.replace(0, editableText.length(), processedText);
+            Log.d(TAG, "write with cursor");
+        } else {
+            editableText.append(ri.text);
+            Log.d(TAG, "write");
+        }
+
+    }
+
+    public void addCursor(RecognitionTask.RecognizedInk ri) {
+        final Rect bb = computeBoundingBox(ri.ink);
+        Layout layout = view.getLayout();
+
+        int offset = getCharacterOffsetFromCart(layout, bb, false);
+
+        Editable editableText = view.getText();
+        editableText.insert(offset, cursor);
+        hasCursor = true;
+    }
+
+    public void addSpace(RecognitionTask.RecognizedInk ri, boolean isAbove) {
+        final Rect bb = computeBoundingBox(ri.ink);
+        Layout layout = view.getLayout();
+
+        int offset = getCharacterOffsetFromCart(layout, bb, isAbove);
+
+        Editable editableText = view.getText();
+        editableText.insert(offset, " ");
+    }
+
+    /**
+     * Adds a new line to the text
+     *
+     * @param ri the recognized ink
+     */
+    public void addCR(RecognitionTask.RecognizedInk ri) {
+
+        final Rect bb = computeBoundingBox(ri.ink);
+        Layout layout = view.getLayout();
+
+        ArrayList<Integer> arr = getCharacterOffsetFromRect(layout, bb);
+
+        Integer startOffset = arr.get(0);
+        Integer endOffset = arr.get(1);
+
+        if (startOffset >= 0 && endOffset >= 0 && startOffset < endOffset) {
+            Editable editableText = view.getText();
+
+            Log.d(TAG, "addCR");
+            editableText.insert(endOffset, "\n");
+        }
+
+    }
+
+    /**
+     * Wraps the word that is in the bounding box of the ink with *
+     *
+     * @param ri the recognized ink
+     */
+    public void strong(RecognitionTask.RecognizedInk ri) {
+        final Rect bb = computeBoundingBox(ri.ink);
+        Layout layout = view.getLayout();
+
+        ArrayList<Integer> arr = getCharacterOffsetFromRect(layout, bb);
+
+        Integer startOffset = arr.get(0);
+        Integer endOffset = arr.get(1);
+
+        if (startOffset >= 0 && endOffset >= 0 && startOffset < endOffset) {
+            Editable editableText = view.getText();
+
+            // Log
+            char[] text = new char[endOffset - startOffset];
+            editableText.getChars(startOffset, endOffset, text, 0);
+            Log.d(TAG, "warp: " + new String(text) + " from " + startOffset + " to " + endOffset);
+
+            String textToWrap = editableText.subSequence(startOffset, endOffset).toString();
+            String wrappedText = " *" + textToWrap + "* ";
+            editableText.replace(startOffset, endOffset, wrappedText);
+
+        }
+    }
+
+    /**
+     * Deletes the word that is in the bounding box of the ink
+     *
+     * @param ri the recognized ink
+     */
+    public void deleteWord(RecognitionTask.RecognizedInk ri) {
 
         final Rect bb = computeBoundingBox(ri.ink);
         Layout layout = view.getLayout();
@@ -55,6 +151,46 @@ public class GestureHandler {
         }
     }
 
+    public void deleteSpace(RecognitionTask.RecognizedInk ri, boolean isAbove) {
+
+        final Rect bb = computeBoundingBox(ri.ink);
+        Layout layout = view.getLayout();
+
+        ArrayList<Integer> arr = getCharacterOffsetFromArch(layout, bb, isAbove);
+
+        Integer startOffset = arr.get(0);
+        Integer endOffset = arr.get(1);
+
+        if (startOffset >= 0 && endOffset >= 0 && startOffset < endOffset) {
+            Editable editableText = view.getText();
+
+            char[] text = new char[endOffset - startOffset];
+            editableText.getChars(startOffset, endOffset, text, 0);
+            Log.d(TAG, "DeletingSpace: " + new String(text) + " from " + startOffset + " to " + endOffset);
+
+            String textToProcess = editableText.subSequence(startOffset, endOffset).toString();
+            String processedText = textToProcess.replaceAll("\\s", "");
+            editableText.replace(startOffset, endOffset, processedText);
+        }
+
+    }
+
+    private ArrayList<Integer> getCharacterOffsetFromArch(Layout layout, Rect rect, boolean isAbove) {
+        ArrayList<Integer> offsets = new ArrayList<>();
+        int start;
+        int end;
+        if (isAbove) {
+            start = getCharacterOffsetFromPoint(layout, rect.left, rect.bottom);
+            end = getCharacterOffsetFromPoint(layout, rect.right, rect.bottom);
+        } else {
+            start = getCharacterOffsetFromPoint(layout, rect.left, rect.top);
+            end = getCharacterOffsetFromPoint(layout, rect.right, rect.top);
+        }
+        offsets.add(start);
+        offsets.add(end);
+        return offsets;
+    }
+
     private ArrayList<Integer> getCharacterOffsetFromRect(Layout layout, Rect rect) {
         ArrayList<Integer> offsets = new ArrayList<>();
         int start = getCharacterOffsetFromPoint(layout, rect.left, rect.top);
@@ -64,6 +200,16 @@ public class GestureHandler {
         return offsets;
     }
 
+    private int getCharacterOffsetFromCart(Layout layout, Rect rect, boolean isAbove) {
+        int offset;
+        if (isAbove) {
+            offset = getCharacterOffsetFromPoint(layout, rect.centerX(), rect.bottom);
+        } else {
+            offset = getCharacterOffsetFromPoint(layout, rect.centerX(), rect.top);
+        }
+        return offset;
+    }
+
     private int getCharacterOffsetFromPoint(Layout layout, float x, float y) {
         if (layout != null) {
             int line = layout.getLineForVertical((int) y);
@@ -71,6 +217,7 @@ public class GestureHandler {
         }
         return -1;
     }
+
 
     private Rect computeBoundingBox(Ink ink) {
         float top = Float.MAX_VALUE;
