@@ -4,7 +4,7 @@
         <string name="app_name">墨影通学</string>
         <string name="standard_icon_btn_desc">概览</string>
         <string name="filled_icon_btn_desc">相机</string>
-        <string name="preference_layout_appbar_title">偏好</string>
+        <string name="preference_layout_appbar_title">偏好设置</string>
         <string name="sample_title_folder_note_card_row_item">标题</string>
         <string name="sample_content_folder_note_card_row_item">支持性文本</string>
         <string name="add_new_note_description_float_button_activity_folder">添加新笔记</string>
@@ -14,7 +14,7 @@
         <string name="recognize_description_float_button_activity_note">待办</string>
         <string name="label_text_field_add_new_note_dialog">标题</string>
 
-        <string name="title_app_bar_folder_app_bar">笔记</string>
+        <string name="title_app_bar_folder_app_bar">墨影通学</string>
         <string name="button_title_preference_menu_app_bar_activity_folder">设置偏好</string>
         <string name="dark_mode_summary_switch_preference">设置暗模式</string>
         <string name="dark_mode_title_switch_preference">夜晚主题</string>
@@ -25,10 +25,17 @@
         <string name="ink_language_tag_title_list_preference">手写识别语言</string>
         <string name="scanner_language_tag_title_list_preference">扫描识别的语言</string>
         <string name="scanner_language_tag_summary_list_preference">选择扫描识别的语言</string>
-        <string name="scan_popup_window_title">相机 或 相册</string>
+        <string name="scan_popup_window_title">相机 还是 相册</string>
         <string name="scan_popup_window_item_camera">相机</string>
         <string name="scan_popup_window_item_Album">相册</string>
         <string name="scan_popup_window_cancel">取消</string>
         <string name="activity_note_status">已准备</string>
+        <string name="add_new_note_dialog_helper_text">输入标题</string>
+        <string name="add_note_dialog_title">标题</string>
+        <string name="add_note_dialog_positive_button">创建</string>
+        <string name="add_note_dialog_negative_button">取消</string>
+        <string name="start_dialog_title">开始的一步</string>
+        <string name="start_dialog_positive_button">好的</string>
+        <string name="start_dialog_message">选择一个文件夹保存你的笔记</string>
     </resources>
 

@@ -12,7 +12,7 @@
         android:layout_margin="10dp"
 
         app:helperTextEnabled="true"
-        app:helperText="Enter The Title"
+        app:helperText="@string/add_new_note_dialog_helper_text"
         app:suffixText=".txt"
 
         android:hint="@string/label_text_field_add_new_note_dialog"

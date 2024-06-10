@@ -18,6 +18,7 @@
             app:title="@string/title_app_bar_folder_app_bar"
             android:icon="@drawable/setting_baseline_settings_24"
             app:menu="@menu/folder_app_bar"
+            app:titleCentered="true"
             />
 
     </com.google.android.material.appbar.AppBarLayout>

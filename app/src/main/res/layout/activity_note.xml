@@ -15,7 +15,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:minHeight="?attr/actionBarSize"
-
+            app:titleCentered="true"
             app:navigationIcon="@drawable/back_to_folder_baseline_arrow_back_24" />
 
     </com.google.android.material.appbar.AppBarLayout>

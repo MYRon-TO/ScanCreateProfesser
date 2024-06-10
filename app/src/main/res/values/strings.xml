@@ -12,7 +12,7 @@
     <string name="recognize_description_float_button_activity_note">TODO</string>
     <string name="label_text_field_add_new_note_dialog">Title</string>
     <string name="sample_title_text_field_add_new_note_dialog" translatable="false">New_Note</string>
-    <string name="title_app_bar_folder_app_bar">Note</string>
+    <string name="title_app_bar_folder_app_bar">Scan Create Professor</string>
     <string name="button_title_preference_menu_app_bar_activity_folder">goToPreference</string>
     <string name="ink_language_tag_summary_list_preference">Choose the language for the Ink Recognizer</string>
     <string name="ink_language_tag_title_list_preference">Ink Recognition Language</string>
@@ -28,4 +28,13 @@
     <string name="scan_popup_window_item_Album">Album</string>
     <string name="scan_popup_window_cancel">Cancel</string>
     <string name="activity_note_status">Ready</string>
+    <string name="add_new_note_dialog_helper_text">Enter The Title</string>
+    <string name="add_note_dialog_title">Title</string>
+    <string name="add_note_dialog_positive_button">OK</string>
+    <string name="add_note_dialog_negative_button">Cancel</string>
+    <string name="start_dialog_title">One Step to Start</string>
+    <string name="start_dialog_positive_button">OK</string>
+    <string name="start_dialog_message">Select a folder to save your note</string>
+
+
 </resources>

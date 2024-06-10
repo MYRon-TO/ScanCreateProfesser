@@ -66,13 +66,17 @@ public class FolderActivity extends AppCompatActivity implements AddNoteDialog.A
                 }
         );
 
+
+        String alertDialogTitle=getResources().getString(R.string.start_dialog_title);
+        String alertDialogPositiveButtonText=getResources().getString(R.string.start_dialog_positive_button);
+        String alertDialogMessage=getResources().getString(R.string.start_dialog_message);
         try {
             if (preference.getPreferenceIsFirstTime()) {
                 new MaterialAlertDialogBuilder(this)
-                        .setTitle("Several Step to Start")
-                        .setMessage("Select a folder to save your note")
+                        .setTitle( alertDialogTitle)
+                        .setMessage(alertDialogMessage)
                         .setPositiveButton(
-                                "OK",
+                                alertDialogPositiveButtonText,
                                 (dialog, which) -> {
                                     Log.d("MainActivity", "OK");
 

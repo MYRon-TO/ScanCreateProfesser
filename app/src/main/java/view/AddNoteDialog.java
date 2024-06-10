@@ -49,13 +49,16 @@ public class AddNoteDialog extends DialogFragment {
         editText = view.findViewById(R.id.title_text_field_add_new_note_dialog);
         textInputLayout = view.findViewById(R.id.title_text_field_layout_add_new_note_dialog);
 
+        String dialogTitle=getResources().getString(R.string.add_note_dialog_title);
+        String diaPositiveButtonText=getResources().getString(R.string.add_note_dialog_positive_button);
+        String dialogNegativeButtonText=getResources().getString(R.string.add_note_dialog_negative_button);
         builder.setView(view)
-                .setTitle("Title")
-                .setPositiveButton("OK", (dialog, which) -> {
+                .setTitle(dialogTitle)
+                .setPositiveButton(diaPositiveButtonText, (dialog, which) -> {
                     String fileTitle = (editText.getText() != null ? editText.getText().toString() : "");
                     listener.onAddNoteDialogPositiveClick(fileTitle);
                 })
-                .setNegativeButton("Cancel", (dialog, which) -> dialog.dismiss());
+                .setNegativeButton(dialogNegativeButtonText, (dialog, which) -> dialog.dismiss());
 
 
         androidx.appcompat.app.AlertDialog dialog = builder.create();
