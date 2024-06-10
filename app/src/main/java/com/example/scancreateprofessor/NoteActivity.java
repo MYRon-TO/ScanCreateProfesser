@@ -1,15 +1,21 @@
 package com.example.scancreateprofessor;
 
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.VisibleForTesting;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
 import com.google.android.material.appbar.MaterialToolbar;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.common.util.concurrent.FutureCallback;
@@ -25,6 +31,7 @@ import view.StatusTextView;
 
 public class NoteActivity extends AppCompatActivity {
     private static final String TAG = "NoteActivity";
+    private static final int PERMISSION_REQUEST_CODE = 8000;
     @VisibleForTesting
     final StrokeManager strokeManager = StrokeManager.getInstance();
     final TextAnalysis textAnalysis = new TextAnalysis();
@@ -35,6 +42,17 @@ public class NoteActivity extends AppCompatActivity {
     private String fileTitle;
     private Uri imageUri;
     private String noteContent;
+    private final ActivityResultLauncher<Intent> goAlbumResultLauncher = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(),
+            result -> {
+                if (result.getResultCode() == RESULT_OK) {
+                    if (result.getData() != null) {
+                        imageUri = result.getData().getData();
+                        handleScan();
+                    }
+                }
+            }
+    );
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -78,13 +96,30 @@ public class NoteActivity extends AppCompatActivity {
 //        ** scan button
         ExtendedFloatingActionButton scanButton = findViewById(R.id.scan_extended_fab_activity_note);
         scanButton.setOnClickListener(
-                v -> {
-                    // *** hang on the note activity
-                    Intent intent = new Intent(NoteActivity.this, CameraXActivity.class);
-                    intent.putExtra("FileUri", UriStringConverters.stringFromUri(fileUri));
-                    intent.putExtra("Title", fileTitle);
-                    startActivity(intent);
-                }
+                v -> new MaterialAlertDialogBuilder(this)
+                        .setTitle("Camera Or Album")
+//                            .setMessage("Choose where to scan the image from.")
+                        .setItems(
+                                new CharSequence[]{
+                                        "Camera",
+                                        "Album"
+                                },
+                                (dialog, which) -> {
+                                    switch (which) {
+                                        case 0:
+                                            goCamera();
+                                            break;
+                                        case 1:
+                                            goAlbum();
+                                            break;
+                                    }
+                                }
+                        )
+                        .setNeutralButton(
+                                "Cancel",
+                                (dialog, which) -> dialog.dismiss()
+                        )
+                        .show()
         );
 
 //        ** recognize button
@@ -149,6 +184,56 @@ public class NoteActivity extends AppCompatActivity {
     private void refreshContent() {
         Log.d(TAG + "refreshContent", noteContent);
         drawingView.setText(noteContent);
+        NoteManager.getInstance().updateNote(fileUri, noteContent);
+    }
+
+    private void goCamera(){
+        checkPermission(Permission.Camera);
+
+        Intent intent = new Intent(NoteActivity.this, CameraXActivity.class);
+
+        // *** hang on the note activity
+        intent.putExtra("FileUri", UriStringConverters.stringFromUri(fileUri));
+        intent.putExtra("Title", fileTitle);
+
+        startActivity(intent);
+    }
+
+    private void goAlbum(){
+        checkPermission(Permission.ReadExternalStorage);
+
+        Intent intent1 = new Intent(Intent.ACTION_GET_CONTENT);
+        intent1.setType("image/*");
+
+        goAlbumResultLauncher.launch(intent1);
+    }
+
+    enum Permission{
+        Camera,
+        ReadExternalStorage
+    }
+
+    private void checkPermission(@NonNull Permission permission){
+        switch (permission){
+            case Camera -> {
+                if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+                    ActivityCompat.requestPermissions(
+                            this,
+                            new String[]{android.Manifest.permission.CAMERA},
+                            PERMISSION_REQUEST_CODE
+                    );
+                }
+            }
+            case ReadExternalStorage -> {
+                if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                    ActivityCompat.requestPermissions(
+                            this,
+                            new String[]{android.Manifest.permission.READ_EXTERNAL_STORAGE},
+                            PERMISSION_REQUEST_CODE
+                    );
+                }
+            }
+        }
     }
 
 }
