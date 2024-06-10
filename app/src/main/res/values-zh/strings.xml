@@ -25,5 +25,10 @@
         <string name="ink_language_tag_title_list_preference">手写识别语言</string>
         <string name="scanner_language_tag_title_list_preference">扫描识别的语言</string>
         <string name="scanner_language_tag_summary_list_preference">选择扫描识别的语言</string>
+        <string name="scan_popup_window_title">相机 或 相册</string>
+        <string name="scan_popup_window_item_camera">相机</string>
+        <string name="scan_popup_window_item_Album">相册</string>
+        <string name="scan_popup_window_cancel">取消</string>
+        <string name="activity_note_status">已准备</string>
     </resources>
 

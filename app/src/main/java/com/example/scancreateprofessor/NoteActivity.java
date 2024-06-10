@@ -82,7 +82,6 @@ public class NoteActivity extends AppCompatActivity {
         strokeManager.reset();
 
         drawingView.setStrokeManager(strokeManager);
-
 //        ** app bar
         MaterialToolbar appBar = findViewById(R.id.top_app_bar_activity_note);
         appBar.setTitle(fileTitle);
@@ -93,16 +92,22 @@ public class NoteActivity extends AppCompatActivity {
                 }
         );
 
+        //获取资源字符串
+        String popupWindowTitle=getResources().getString(R.string.scan_popup_window_title);
+        String popupWindowCamera=getResources().getString(R.string.scan_popup_window_item_camera);
+        String popupWindowAlbum=getResources().getString(R.string.scan_popup_window_item_Album);
+        String popupWindowCancel=getResources().getString(R.string.scan_popup_window_cancel);
+
 //        ** scan button
         ExtendedFloatingActionButton scanButton = findViewById(R.id.scan_extended_fab_activity_note);
         scanButton.setOnClickListener(
                 v -> new MaterialAlertDialogBuilder(this)
-                        .setTitle("Camera Or Album")
+                        .setTitle(popupWindowTitle)
 //                            .setMessage("Choose where to scan the image from.")
                         .setItems(
                                 new CharSequence[]{
-                                        "Camera",
-                                        "Album"
+                                        popupWindowCamera,
+                                        popupWindowAlbum
                                 },
                                 (dialog, which) -> {
                                     switch (which) {
@@ -116,7 +121,7 @@ public class NoteActivity extends AppCompatActivity {
                                 }
                         )
                         .setNegativeButton(
-                                "Cancel",
+                                popupWindowCancel,
                                 (dialog, which) -> dialog.dismiss()
                         )
                         .show()
@@ -137,7 +142,8 @@ public class NoteActivity extends AppCompatActivity {
     protected void onStart() {
         Log.i(TAG, "onStart");
         super.onStart();
-        strokeManager.setStatus("Ready");
+        String status=getResources().getString(R.string.activity_note_status);
+        strokeManager.setStatus(status);
 
         Futures.addCallback(
                 NoteManager.getInstance().readNote(fileUri),

@@ -43,10 +43,10 @@ public class GestureHandler {
             String textToProcessed = editableText.toString();
             String processedText = textToProcessed.replaceAll(cursor, ri.text);
             editableText.replace(0, editableText.length(), processedText);
-            Log.d(TAG, "write with cursor");
+
         } else {
             editableText.append(ri.text);
-            Log.d(TAG, "write");
+
         }
         hasCursor = false;
     }

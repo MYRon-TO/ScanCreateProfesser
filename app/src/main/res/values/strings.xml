@@ -23,4 +23,9 @@
     <string name="scanner_language_tag_title_list_preference">Scanner Language</string>
     <string name="scanner_language_tag_summary_list_preference">Choose the language for the scanner</string>
     <string name="button_take_photo_camera_x_activity">takePhoto</string>
+    <string name="scan_popup_window_title">Camera Or Album</string>
+    <string name="scan_popup_window_item_camera">Camera</string>
+    <string name="scan_popup_window_item_Album">Album</string>
+    <string name="scan_popup_window_cancel">Cancel</string>
+    <string name="activity_note_status">Ready</string>
 </resources>
