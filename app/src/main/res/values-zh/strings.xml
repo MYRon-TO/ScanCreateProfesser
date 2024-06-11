@@ -37,7 +37,12 @@
         <string name="start_dialog_title">开始的一步</string>
         <string name="start_dialog_positive_button">好的</string>
         <string name="start_dialog_message">选择一个文件夹保存你的笔记</string>
-        <string name="add_note_input_error_empty">输入不能为空</string>
-        <string name="add_note_input_error_characters">包含了特殊字符</string>
+        <string name="input_cannot_be_empty_add_note_dialog">输入不能为空</string>
+        <string name="input_contains_special_characters_add_note_dialog">不能包含特殊字符</string>
+        <string name="delete_note_long_click_folder_note_card">删除笔记</string>
+        <string name="are_you_sure_you_want_to_delete_this_note_folder_note_card">确定删除？</string>
+        <string name="yes_folder_note_card">是</string>
+        <string name="no_folder_note_card">否</string>
+
     </resources>
 
