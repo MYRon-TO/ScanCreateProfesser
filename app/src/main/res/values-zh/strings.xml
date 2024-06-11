@@ -37,5 +37,7 @@
         <string name="start_dialog_title">开始的一步</string>
         <string name="start_dialog_positive_button">好的</string>
         <string name="start_dialog_message">选择一个文件夹保存你的笔记</string>
+        <string name="add_note_input_error_empty">输入不能为空</string>
+        <string name="add_note_input_error_characters">包含了特殊字符</string>
     </resources>
 
