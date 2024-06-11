@@ -14,10 +14,12 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.scancreateprofessor.NoteActivity;
 import com.example.scancreateprofessor.R;
 import com.google.android.material.card.MaterialCardView;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import java.util.ArrayList;
 
 import model.UriStringConverters;
+import presenter.NoteManager;
 
 public class FolderNoteCardAdapter extends RecyclerView.Adapter<FolderNoteCardAdapter.FolderNoteCardViewHolder> {
 
@@ -77,6 +79,22 @@ public class FolderNoteCardAdapter extends RecyclerView.Adapter<FolderNoteCardAd
                     intent.putExtra("FileUri", UriStringConverters.stringFromUri(folderNoteCardData.get(position).fileUri));
 
                     context.startActivity(intent);
+                }
+        );
+        holder.getCardFolderNoteCardRowItem().setOnLongClickListener(
+                v -> {
+                    Log.d(TAG, "Long Clicked");
+                    new MaterialAlertDialogBuilder(context)
+                            .setTitle(context.getString(R.string.delete_note_long_click_folder_note_card))
+                            .setMessage(context.getString(R.string.are_you_sure_you_want_to_delete_this_note_folder_note_card))
+                            .setPositiveButton(context.getString(R.string.yes_folder_note_card), (dialog, which) -> {
+                                NoteManager.getInstance().deleteNote(folderNoteCardData.get(position).fileUri);
+                                folderNoteCardData.remove(position);
+                                notifyItemRemoved(position);
+                            })
+                            .setNegativeButton(context.getString(R.string.no_folder_note_card), (dialog, which) -> dialog.dismiss())
+                            .show();
+                    return true;
                 }
         );
     }

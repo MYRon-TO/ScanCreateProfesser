@@ -35,6 +35,12 @@
     <string name="start_dialog_title">One Step to Start</string>
     <string name="start_dialog_positive_button">OK</string>
     <string name="start_dialog_message">Select a folder to save your note</string>
+    <string name="input_cannot_be_empty_add_note_dialog">Input cannot be empty</string>
+    <string name="input_contains_special_characters_add_note_dialog">Input contains special characters</string>
+    <string name="delete_note_long_click_folder_note_card">Delete Note</string>
+    <string name="are_you_sure_you_want_to_delete_this_note_folder_note_card">Are you sure you want to delete this note?</string>
+    <string name="yes_folder_note_card">Yes</string>
+    <string name="no_folder_note_card">No</string>
 
 
 </resources>

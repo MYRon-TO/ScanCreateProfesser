@@ -87,10 +87,10 @@ public class AddNoteDialog extends DialogFragment {
 
     private void validateInput(String input) {
         if (input.isEmpty()) {
-            textInputLayout.setError("Input cannot be empty");
+            textInputLayout.setError(getString(R.string.input_cannot_be_empty_add_note_dialog));
             positiveButton.setEnabled(false);
         } else if (input.matches(".*[^a-zA-Z0-9_].*")) {
-            textInputLayout.setError("Input contains special characters");
+            textInputLayout.setError(getString(R.string.input_contains_special_characters_add_note_dialog));
             positiveButton.setEnabled(false);
         } else {
             textInputLayout.setError(null);
