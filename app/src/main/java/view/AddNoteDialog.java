@@ -84,13 +84,14 @@ public class AddNoteDialog extends DialogFragment {
 
         return dialog;
     }
-
+    String diaInputErrorEmpty=getResources().getString(R.string.add_note_input_error_empty);
+    String diaInputErrorCharacters=getResources().getString(R.string.add_note_input_error_characters);
     private void validateInput(String input) {
         if (input.isEmpty()) {
-            textInputLayout.setError("Input cannot be empty");
+            textInputLayout.setError(diaInputErrorEmpty);
             positiveButton.setEnabled(false);
         } else if (input.matches(".*[^a-zA-Z0-9_].*")) {
-            textInputLayout.setError("Input contains special characters");
+            textInputLayout.setError(diaInputErrorCharacters);
             positiveButton.setEnabled(false);
         } else {
             textInputLayout.setError(null);

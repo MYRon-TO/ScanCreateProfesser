@@ -35,6 +35,8 @@
     <string name="start_dialog_title">One Step to Start</string>
     <string name="start_dialog_positive_button">OK</string>
     <string name="start_dialog_message">Select a folder to save your note</string>
+    <string name="add_note_input_error_empty">Input cannot be empty</string>
+    <string name="add_note_input_error_characters">Input contains special characters</string>
 
 
 </resources>
