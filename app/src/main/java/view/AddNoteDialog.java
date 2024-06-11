@@ -84,9 +84,10 @@ public class AddNoteDialog extends DialogFragment {
 
         return dialog;
     }
-    String diaInputErrorEmpty=getResources().getString(R.string.add_note_input_error_empty);
-    String diaInputErrorCharacters=getResources().getString(R.string.add_note_input_error_characters);
+
     private void validateInput(String input) {
+        String diaInputErrorEmpty=getResources().getString(R.string.add_note_input_error_empty);
+        String diaInputErrorCharacters=getResources().getString(R.string.add_note_input_error_characters);
         if (input.isEmpty()) {
             textInputLayout.setError(diaInputErrorEmpty);
             positiveButton.setEnabled(false);
