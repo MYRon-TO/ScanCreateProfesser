@@ -9,6 +9,7 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.documentfile.provider.DocumentFile;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.StaggeredGridLayoutManager;
 
@@ -23,6 +24,7 @@ import java.util.ArrayList;
 
 import model.UriStringConverters;
 import model.database.DataEntityNote;
+import model.filemanager.FileManager;
 import model.preference.PreferenceManager;
 import presenter.NoteManager;
 import view.AddNoteDialog;
@@ -46,6 +48,11 @@ public class FolderActivity extends AppCompatActivity implements AddNoteDialog.A
                             Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION
                     );
                     preference.setPreferencePathToSaveNote(treeUri);
+                    preference.setPreferenceIsFirstTime(false);
+
+                    DocumentFile dir = DocumentFile.fromTreeUri(this, treeUri);
+                    assert dir != null;
+                    dir.createFile("text/plain", ".init");
                 }
             }
     );
@@ -78,14 +85,7 @@ public class FolderActivity extends AppCompatActivity implements AddNoteDialog.A
                         .setPositiveButton(
                                 alertDialogPositiveButtonText,
                                 (dialog, which) -> {
-                                    Log.d("MainActivity", "OK");
-
-                                    Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
-                                    intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-                                    intent.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
-
-                                    permissionActivityResultLauncher.launch(intent);
-                                    preference.setPreferenceIsFirstTime(false);
+                                    getPermission();
                                 }
                         )
                         .show();
@@ -162,10 +162,19 @@ public class FolderActivity extends AppCompatActivity implements AddNoteDialog.A
                     @Override
                     public void onFailure(@NonNull Throwable t) {
                         Log.e(TAG, "Error: Can Not Add Note" + t.getMessage());
+                        getPermission();
                     }
                 },
                 MoreExecutors.directExecutor()
         );
+    }
+
+    private void getPermission(){
+        Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
+        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        intent.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+
+        permissionActivityResultLauncher.launch(intent);
     }
 
 }

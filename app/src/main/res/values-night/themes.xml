@@ -3,9 +3,9 @@
     <style name="Base.Theme.ScanCreateProfessor" parent="Theme.Material3.DayNight.NoActionBar">
         <!-- Customize your dark theme here. -->
         <!-- <item name="colorPrimary">@color/my_dark_primary</item> -->
+<!--        <item name="tint">@color/white</item>-->
         <item name="tint">@color/white</item>
         <item name="tickColor">@color/white</item>
-
         <item name="background">@color/black</item>
     </style>
     <style name="Theme.ScanCreateProfessor" parent="Base.Theme.ScanCreateProfessor" />

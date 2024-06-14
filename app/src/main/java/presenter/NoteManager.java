@@ -93,7 +93,7 @@ public class NoteManager {
                 return fileUri;
             } catch (AssertionError | Exception e) {
                 Log.e("NoteManager", "Error adding note: " + e.getMessage());
-                return null;
+                throw e;
             }
         };
 

@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.concurrent.Callable;
 
 /**
@@ -26,9 +27,6 @@ public class FileManager {
         throw new IllegalStateException("Utility class");
     }
 
-    // TODO: 5/25/24 add function rename
-    // TODO: 5/25/24 add function delete
-
     /**
      * Write content to a file.
      * @param uri The uri of the file.
@@ -39,13 +37,13 @@ public class FileManager {
      */
     public static ListenableFuture<Boolean> write(Uri uri, String content, Context context) throws IOException {
         Callable<Boolean> task = () -> {
-            OutputStream outputStream = context.getContentResolver().openOutputStream(uri,"wt");
-            if (outputStream != null) {
-                outputStream.write(content.getBytes());
-                outputStream.close();
-                return true;
-            } else {
-                return false;
+            try (OutputStream outputStream = context.getContentResolver().openOutputStream(uri, "wt")) {
+                if (outputStream != null) {
+                    outputStream.write(content.getBytes(StandardCharsets.UTF_8));
+                    return true;
+                } else {
+                    return false;
+                }
             }
         };
         return Futures.submit(task, MoreExecutors.directExecutor());
@@ -54,6 +52,7 @@ public class FileManager {
     /**
      * Read content from a file.
      * @param uri The uri of the file.
+     * @param context The context of the application.
      * @return The content of the file.
      * @throws IOException If an I/O error occurs.
      */
@@ -61,17 +60,22 @@ public class FileManager {
 
         Callable<String> task = () -> {
             StringBuilder stringBuilder = new StringBuilder();
-            InputStream inputStream = context.getContentResolver().openInputStream(uri);
-            if (inputStream != null) {
-                BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
-                String line;
-                while ((line = reader.readLine()) != null) {
-                    stringBuilder.append(line);
+            try (InputStream inputStream = context.getContentResolver().openInputStream(uri)) {
+                if (inputStream != null) {
+                    try (BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8))) {
+                        String line;
+                        while ((line = reader.readLine()) != null) {
+                            stringBuilder.append(line).append("\n");
+                        }
+                    }
+                    // Remove the last added newline character, if desired
+//                    if (stringBuilder.length() > 0) {
+//                        stringBuilder.setLength(stringBuilder.length() - 1);
+//                    }
+                    return stringBuilder.toString();
+                } else {
+                    return null;
                 }
-                reader.close();
-                return stringBuilder.toString();
-            } else {
-                return null;
             }
         };
 
@@ -88,19 +92,24 @@ public class FileManager {
 
         Callable<String> task = () -> {
             StringBuilder stringBuilder = new StringBuilder();
-            InputStream inputStream = context.getContentResolver().openInputStream(uri);
-            if (inputStream != null) {
-                BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
-                String line;
-                int count = NUM_OF_LINES;
-                while ((line = reader.readLine()) != null && count > 0) {
-                    stringBuilder.append(line);
-                    count -= 1;
+            try(InputStream inputStream = context.getContentResolver().openInputStream(uri)){
+                if (inputStream != null) {
+                    try (BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8))) {
+                        String line;
+                        int count = NUM_OF_LINES;
+                        while ((line = reader.readLine()) != null && count > 0) {
+                            stringBuilder.append(line).append("\n");
+                            count -= 1;
+                        }
+                    }
+//                    // Remove the last added newline character, if desired
+//                    if (stringBuilder.length() > 0) {
+//                        stringBuilder.setLength(stringBuilder.length() - 1);
+//                    }
+                    return stringBuilder.toString();
+                } else {
+                    return null;
                 }
-                reader.close();
-                return stringBuilder.toString();
-            } else {
-                return null;
             }
         };
 
